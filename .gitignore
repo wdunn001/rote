@@ -1,0 +1,21 @@
+# Secrets — never commit
+secret-vault/secrets.json
+
+# Server state
+server/.venv
+server/data/audit.sqlite
+server/data/audit.sqlite-*
+server/data/server.log
+
+# MCP server state
+mcp-server/.venv
+
+# Python
+__pycache__/
+*.pyc
+
+# OS / editor
+.DS_Store
+*.swp
+.vscode/
+.idea/

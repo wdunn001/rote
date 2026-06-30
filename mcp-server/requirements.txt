@@ -1,0 +1,7 @@
+# Rote MCP server runtime deps. Pinned for reproducibility.
+
+# Official MCP Python SDK — FastMCP for the high-level decorator API.
+mcp[cli]>=1.2.0
+
+# Sync HTTP client to talk to the local Rote API.
+httpx>=0.27.0

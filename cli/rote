@@ -1,0 +1,1032 @@
+#!/usr/bin/env bash
+# =============================================================================
+# rote — terse CLI for the local Rote API.
+#
+# Designed for minimum token usage by an LLM caller: tab-separated output, no
+# headers, no decorative ANSI, no "successfully" lines.  Default exit code is
+# the API's HTTP status mapped to standard shell semantics.
+#
+# Subcommands
+# -----------
+#   rote find <query>                   semantic search for a script
+#   rote run <name> [-- script-args...] execute a script in the library
+#   rote show <name>                    one script's frontmatter
+#   rote list                           list all scripts (terse)
+#
+#   rote vault list                     list secret NAMES + byte sizes
+#   rote vault has KEY [KEY...]         which keys exist
+#   rote vault inject --env-file P --key K [--key K...] [--label L]
+#                                             inject named secrets into a .env
+#                                             (Claude never sees the values)
+#
+#   rote ap find <query>                semantic search anti-patterns
+#   rote ap list                        list anti-patterns
+#   rote ap add <slug> <title> <symptom> <remedy> [--cost <text>]
+#                                             record (or bump hit-count of) one
+#
+#   rote delegate list                  list delegates + per-cap stats
+#   rote delegate show NAME             one delegate + recent log
+#   rote delegate best CAPABILITY       best enabled delegate for CAP
+#                                             (exits 4 if none qualify)
+#   rote delegate log NAME CAP OUTCOME --task "summary"
+#                                             [--latency-ms N] [--saved N] [--notes T]
+#   rote delegate set-url NAME URL      patch endpoint URL
+#   rote delegate enable NAME           flip enabled=true
+#   rote delegate disable NAME          flip enabled=false (soft-delete)
+#   rote delegate dispatch NAME CAP -- <args>
+#                                             route to the right dispatch-to-*
+#                                             script by delegate kind; logs
+#                                             outcome + latency automatically
+#
+#   rote audit [N]                      recent N audit events (default 20)
+#   rote health                         api health check
+#   rote up                             start the api (if down)
+#   rote gui                            print the GUI URL (open in browser)
+#   rote verify                         end-to-end smoke test of the whole
+#                                             context system (PASS/FAIL/WARN)
+#   rote bootstrap                      fresh-machine zero-to-ready:
+#                                             backend up, MCP venv, client
+#                                             configs, verify
+#   rote mcp-install                    detect-and-write MCP client
+#                                             configs (Claude Desktop, Cursor,
+#                                             Continue.dev, Cline)
+#
+# Env
+#   API   default http://127.0.0.1:5572
+#
+# Deps: curl, jq.  On Debian/Ubuntu: `sudo apt-get install -y jq`.
+# =============================================================================
+set -euo pipefail
+
+API="${API:-http://127.0.0.1:5572}"
+HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+LIB_ROOT="$(dirname "$HERE")"
+
+die() { echo "${1:-error}" >&2; exit "${2:-1}"; }
+have() { command -v "$1" >/dev/null; }
+
+have curl || die "curl required (install with: sudo apt-get install -y curl)" 4
+have jq   || die "jq required (install with: sudo apt-get install -y jq) — or open the GUI at $API/" 4
+
+# Cheap probe; many subcommands fall through to it.
+api_up() { curl -fsS -o /dev/null -m 2 "$API/healthz" 2>/dev/null; }
+
+need_api() {
+    api_up && return 0
+    die "api down at $API — start: $LIB_ROOT/server/start.sh" 4
+}
+
+api() {
+    # usage: api METHOD PATH [json-body]
+    local m="$1" p="$2" body="${3:-}"
+    if [[ -n "$body" ]]; then
+        curl -fsS -X "$m" -H "Content-Type: application/json" --data "$body" "$API$p"
+    else
+        curl -fsS -X "$m" "$API$p"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Scripts
+# -----------------------------------------------------------------------------
+cmd_list() {
+    need_api
+    local env_filter=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --env) env_filter="$2"; shift 2 ;;
+            *) die "list: unknown arg: $1" ;;
+        esac
+    done
+    local url="/scripts"
+    [[ -n "$env_filter" ]] && url="$url?environment=$env_filter"
+    api GET "$url" \
+        | jq -r '.scripts[] | "\(.name)\t\(.environment)\t\(.family)\t\(.touches_secrets)\t\(.purpose)"'
+}
+
+cmd_family() {
+    need_api
+    local family="${1:-}"; [[ -n "$family" ]] || die "usage: rote family <family> [--env <tag>]"
+    shift
+    local env_filter=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --env) env_filter="$2"; shift 2 ;;
+            *) die "family: unknown arg: $1" ;;
+        esac
+    done
+    local url="/scripts/family/$family"
+    [[ -n "$env_filter" ]] && url="$url?environment=$env_filter"
+    api GET "$url" \
+        | jq -r '
+            "family:\t\(.family)",
+            "best_match:\t\((.best_match // {}).name // "none")",
+            (.variants[] | "variant:\t\(.name)\t\(.environment)")
+        '
+}
+
+cmd_show() {
+    need_api
+    local name="${1:-}"; [[ -n "$name" ]] || die "usage: rote show <name>"
+    api GET "/scripts/$name" \
+        | jq -r '"path:\t\(.path)\npurpose:\t\(.purpose)\nwhen:\t\(.when_to_use)\nsecrets:\t\(.touches_secrets)"'
+}
+
+cmd_find() {
+    need_api
+    local q="$*"; [[ -n "$q" ]] || die "usage: rote find <query>"
+    local body
+    body=$(jq -nc --arg q "$q" '{query: $q, limit: 5}')
+    api POST /scripts/search "$body" \
+        | jq -r '.matches[] | "\(.name)\t\(.distance | tostring | .[0:5])\t\(.purpose)"'
+}
+
+cmd_run() {
+    need_api
+    local name="${1:-}"; [[ -n "$name" ]] || die "usage: rote run <name> [-- args...]"
+    shift
+    # Strip a leading "--" arg-separator if present so the caller can pass
+    # arbitrary flags through to the script without quoting hell.
+    [[ "${1:-}" == "--" ]] && shift || true
+
+    local path
+    path=$(api GET "/scripts/$name" | jq -r '.path')
+    [[ -x "$path" ]] || die "script not executable: $path" 4
+
+    # Time + capture exit code so we can log usage/failure stats.  Forwards
+    # the child's stdout + stderr unchanged so the caller sees the same
+    # output as if they exec'd directly.  We don't redirect anything.
+    local start_ms end_ms rc
+    start_ms=$(date +%s%3N)
+    set +e
+    "$path" "$@"
+    rc=$?
+    set -e
+    end_ms=$(date +%s%3N)
+
+    # Build args preview: first 200 chars of joined args
+    local args_preview
+    args_preview=$(printf '%s ' "$@" 2>/dev/null | cut -c1-200)
+
+    local outcome
+    if [[ "$rc" -eq 0 ]]; then
+        outcome="success"
+    elif [[ "$rc" -eq 124 ]]; then
+        outcome="timeout"
+    else
+        outcome="failure"
+    fi
+
+    # POST to /scripts/<name>/runs.  Failures here are silent — we don't
+    # want a logging hiccup to mask the real script's exit code.
+    local body
+    body=$(jq -nc \
+        --arg outcome "$outcome" \
+        --arg caller "cli" \
+        --arg args "$args_preview" \
+        --argjson rc "$rc" \
+        --argjson dur "$(( end_ms - start_ms ))" \
+        '{outcome: $outcome, exit_code: $rc, duration_ms: $dur,
+          caller: $caller, args_preview: $args}')
+    curl -fsS -X POST -H "Content-Type: application/json" \
+        --data "$body" "$API/scripts/$name/runs" >/dev/null 2>&1 || true
+
+    exit "$rc"
+}
+
+cmd_script_log() {
+    # Manual outcome recording for runs Claude did via Bash directly
+    # (not through cmd_run).  Useful when the rule is broken and we want
+    # to keep stats honest anyway.
+    need_api
+    local name="${1:-}" outcome="${2:-}"
+    [[ -n "$name" && -n "$outcome" ]] \
+        || die "usage: rote script-log NAME OUTCOME [--duration-ms N] [--exit N] [--notes TEXT]"
+    shift 2
+    local duration="" exit_code="" notes="" caller="direct"
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --duration-ms) duration="$2"; shift 2 ;;
+            --exit)        exit_code="$2"; shift 2 ;;
+            --notes)       notes="$2"; shift 2 ;;
+            --caller)      caller="$2"; shift 2 ;;
+            *) die "script-log: unknown arg: $1" ;;
+        esac
+    done
+    local body
+    body=$(jq -nc \
+        --arg outcome "$outcome" \
+        --arg caller "$caller" \
+        --arg notes "$notes" \
+        --argjson dur "${duration:-null}" \
+        --argjson rc "${exit_code:-null}" \
+        '{outcome: $outcome, caller: $caller, notes: $notes,
+          duration_ms: $dur, exit_code: $rc}')
+    api POST "/scripts/$name/runs" "$body" | jq -r '"\(.action)\t\(.script)\t\(.outcome)"'
+}
+
+# -----------------------------------------------------------------------------
+# Vault
+# -----------------------------------------------------------------------------
+cmd_vault() {
+    need_api
+    local sub="${1:-list}"; shift || true
+    case "$sub" in
+        list)
+            api GET /vault/keys | jq -r '.keys[] | "\(.name)\t\(.bytes)"' ;;
+        has)
+            [[ $# -gt 0 ]] || die "usage: rote vault has KEY [KEY...]"
+            local body
+            body=$(jq -nc --argjson keys "$(printf '%s\n' "$@" | jq -R . | jq -s .)" '{keys: $keys}')
+            api POST /vault/has "$body" | jq -r '.exists | to_entries[] | "\(.key)\t\(.value)"' ;;
+        inject)
+            local env_file="" label="vault-inject"
+            local -a keys=()
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --env-file) env_file="$2"; shift 2 ;;
+                    --key)      keys+=("$2"); shift 2 ;;
+                    --label)    label="$2"; shift 2 ;;
+                    *) die "vault inject: unknown arg: $1" ;;
+                esac
+            done
+            [[ -n "$env_file" && ${#keys[@]} -gt 0 ]] \
+                || die "usage: rote vault inject --env-file P --key K [--key K...]"
+            local body
+            body=$(jq -nc \
+                --arg env_file "$env_file" \
+                --arg label "$label" \
+                --argjson keys "$(printf '%s\n' "${keys[@]}" | jq -R . | jq -s .)" \
+                '{env_file: $env_file, block_label: $label, keys: $keys}')
+            local resp; resp=$(api POST /vault/inject "$body")
+            # Terse multi-line summary: WROTE / MISSING / OK
+            echo "$resp" | jq -r '
+                "ok:\t\(.ok)",
+                "env_file:\t\(.env_file)",
+                (.wrote | length | "wrote:\t\(.)"),
+                (.wrote[]? | "  +\(.name)\t\(.bytes)b"),
+                (.missing | length | "missing:\t\(.)"),
+                (.missing[]? | "  -\(.)")
+            '
+            # Exit 3 if anything was missing
+            [[ "$(echo "$resp" | jq -r '.missing | length')" == "0" ]] || exit 3 ;;
+        *) die "vault: subcommands: list|has|inject" ;;
+    esac
+}
+
+# -----------------------------------------------------------------------------
+# Anti-patterns
+# -----------------------------------------------------------------------------
+cmd_cmd() {
+    need_api
+    local sub="${1:-list}"; shift || true
+    case "$sub" in
+        list)
+            local fam="" plat=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --family) fam="$2"; shift 2 ;;
+                    --platform) plat="$2"; shift 2 ;;
+                    *) die "cmd list: unknown arg: $1" ;;
+                esac
+            done
+            local url="/commands"
+            local qs=""
+            [[ -n "$fam" ]] && qs="${qs}family=$fam&"
+            [[ -n "$plat" ]] && qs="${qs}platform=$plat&"
+            [[ -n "$qs" ]] && url="$url?${qs%&}"
+            api GET "$url" | jq -r '.commands[] | "\(.family)\t\(.slug)\t\(.use_count)\t\(.name)"' ;;
+        find)
+            local q="" fam=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --family) fam="$2"; shift 2 ;; *) q="$q $1"; shift ;; esac
+            done
+            q="${q# }"
+            [[ -n "$q" ]] || die "usage: rote cmd find <query> [--family FAM]"
+            local body
+            if [[ -n "$fam" ]]; then
+                body=$(jq -nc --arg q "$q" --arg f "$fam" '{query: $q, limit: 5, family: $f}')
+            else
+                body=$(jq -nc --arg q "$q" '{query: $q, limit: 5}')
+            fi
+            api POST /commands/search "$body" \
+                | jq -r '.matches[] | "\(.slug)\t\(.distance | tostring | .[0:5])\t\(.family)\t\(.name)"' ;;
+        show)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote cmd show <slug>"
+            api GET "/commands/$slug" \
+                | jq -r '
+                    "name:\t\(.name)",
+                    "family:\t\(.family)",
+                    "platform:\t\(.platform)",
+                    "equivalents:\t\(.equivalents)",
+                    "use_count:\t\(.use_count)",
+                    "\ncommand:\n\(.command_line)",
+                    "\nwhen_to_use:\n\(.when_to_use)",
+                    "\nwhen_not_to_use:\n\(.when_not_to_use)",
+                    "\ngotchas:\n\(.gotchas)",
+                    "\nflags:\n\(.flags_explained)",
+                    "\nexamples:\n\(.examples)"
+                ' ;;
+        use)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote cmd use <slug>"
+            shift
+            local notes=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --notes) notes="$2"; shift 2 ;; *) die "use: unknown arg: $1" ;; esac
+            done
+            api POST "/commands/$slug/use?notes=$(jq -nr --arg s "$notes" '$s | @uri')" "" \
+                | jq -r '"\(.action)\t\(.slug)"' ;;
+        *) die "cmd: subcommands: list|find|show|use" ;;
+    esac
+}
+
+cmd_snippet() {
+    need_api
+    local sub="${1:-list}"; shift || true
+    case "$sub" in
+        list)
+            local lang=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --language) lang="$2"; shift 2 ;; *) die "snippet list: unknown arg: $1" ;; esac
+            done
+            local url="/snippets"; [[ -n "$lang" ]] && url="$url?language=$lang"
+            api GET "$url" | jq -r '.snippets[] | "\(.language)\t\(.slug)\t\(.use_count)\t\(.name)"' ;;
+        find)
+            local q="" lang=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --language) lang="$2"; shift 2 ;; *) q="$q $1"; shift ;; esac
+            done
+            q="${q# }"
+            [[ -n "$q" ]] || die "usage: rote snippet find <query> [--language LANG]"
+            local body
+            if [[ -n "$lang" ]]; then
+                body=$(jq -nc --arg q "$q" --arg l "$lang" '{query: $q, limit: 5, language: $l}')
+            else
+                body=$(jq -nc --arg q "$q" '{query: $q, limit: 5}')
+            fi
+            api POST /snippets/search "$body" \
+                | jq -r '.matches[] | "\(.slug)\t\(.distance | tostring | .[0:5])\t\(.language)\t\(.name)"' ;;
+        show)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote snippet show <slug>"
+            api GET "/snippets/$slug" \
+                | jq -r '"name:\t\(.name)\nlanguage:\t\(.language)\nuse_count:\t\(.use_count)\napplies_patterns:\t\(.applies_patterns)\napplies_technologies:\t\(.applies_technologies)\n",
+                         "placeholders:", (.placeholders[]? | "  \(.name) — \(.description)\(if .example != "" then " (example: " + .example + ")" else "" end)"),
+                         "\nbody:\n\(.body)"' ;;
+        expand)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote snippet expand <slug> --VAR=value ..."
+            shift
+            local jq_args="" jq_obj_parts="{"
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --*=*)
+                        local kv="${1#--}"
+                        local key="${kv%%=*}"
+                        local value="${kv#*=}"
+                        jq_args+=" --arg ${key} \"${value}\""
+                        jq_obj_parts+="${key}: \$${key}, "
+                        shift ;;
+                    *) die "expand: unknown arg: $1" ;;
+                esac
+            done
+            jq_obj_parts="${jq_obj_parts%, }}"
+            local body
+            body=$(eval "jq -nc $jq_args '{values: $jq_obj_parts}'")
+            api POST "/snippets/$slug/expand" "$body" | jq -r '
+                "remaining_placeholders:\t\(.remaining_placeholders | join(","))",
+                "\n--- rendered ---\n\(.rendered)"' ;;
+        use)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote snippet use <slug>"
+            shift
+            local notes=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --notes) notes="$2"; shift 2 ;; *) die "use: unknown arg: $1" ;; esac
+            done
+            api POST "/snippets/$slug/use?notes=$(jq -nr --arg s "$notes" '$s | @uri')" "" \
+                | jq -r '"\(.action)\t\(.slug)"' ;;
+        *) die "snippet: subcommands: list|find|show|expand|use" ;;
+    esac
+}
+
+cmd_stack() {
+    need_api
+    local sub="${1:-list}"; shift || true
+    case "$sub" in
+        list)
+            local outcome=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --outcome) outcome="$2"; shift 2 ;; *) die "stack list: unknown arg: $1" ;; esac
+            done
+            local url="/stacks"; [[ -n "$outcome" ]] && url="$url?outcome=$outcome"
+            api GET "$url" | jq -r '.stacks[] | "\(.outcome)\t\(.slug)\t\(.technologies)"' ;;
+        find)
+            local q="" outcome=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --outcome) outcome="$2"; shift 2 ;; *) q="$q $1"; shift ;; esac
+            done
+            q="${q# }"
+            [[ -n "$q" ]] || die "usage: rote stack find <query> [--outcome success|failure|partial|mixed]"
+            local body
+            if [[ -n "$outcome" ]]; then
+                body=$(jq -nc --arg q "$q" --arg o "$outcome" '{query: $q, limit: 5, outcome: $o}')
+            else
+                body=$(jq -nc --arg q "$q" '{query: $q, limit: 5}')
+            fi
+            api POST /stacks/search "$body" \
+                | jq -r '.matches[] | "\(.slug)\t\(.distance | tostring | .[0:5])\t\(.outcome)\t\(.technologies)"' ;;
+        show)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote stack show <slug>"
+            api GET "/stacks/$slug" \
+                | jq -r '
+                    "name:\t\(.name)",
+                    "outcome:\t\(.outcome)",
+                    "technologies:\t\(.technologies)",
+                    "patterns:\t\(.patterns)",
+                    "context:\t\(.context)",
+                    "what_worked:\n\(.what_worked)",
+                    "what_didnt:\n\(.what_didnt)",
+                    "when_to_reuse:\n\(.when_to_reuse)",
+                    "when_to_avoid:\n\(.when_to_avoid)"
+                ' ;;
+        use)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote stack use <slug>"
+            shift
+            local notes=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --notes) notes="$2"; shift 2 ;; *) die "use: unknown arg: $1" ;; esac
+            done
+            api POST "/stacks/$slug/use?notes=$(jq -nr --arg s "$notes" '$s | @uri')" "" \
+                | jq -r '"\(.action)\t\(.slug)"' ;;
+        *) die "stack: subcommands: list|find|show|use" ;;
+    esac
+}
+
+cmd_dp() {
+    # Design patterns — GOOD-pattern catalog
+    need_api
+    local sub="${1:-list}"; shift || true
+    case "$sub" in
+        list)
+            local cat=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --category) cat="$2"; shift 2 ;;
+                    *) die "dp list: unknown arg: $1" ;;
+                esac
+            done
+            local url="/design-patterns"
+            [[ -n "$cat" ]] && url="$url?category=$cat"
+            api GET "$url" \
+                | jq -r '.design_patterns[] | "\(.category)\t\(.slug)\t\(.use_count)\t\(.name)"' ;;
+        find)
+            local q="" cat=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --category) cat="$2"; shift 2 ;;
+                    *) q="$q $1"; shift ;;
+                esac
+            done
+            q="${q# }"
+            [[ -n "$q" ]] || die "usage: rote dp find <query> [--category CAT]"
+            local body
+            if [[ -n "$cat" ]]; then
+                body=$(jq -nc --arg q "$q" --arg c "$cat" '{query: $q, limit: 5, category: $c}')
+            else
+                body=$(jq -nc --arg q "$q" '{query: $q, limit: 5}')
+            fi
+            api POST /design-patterns/search "$body" \
+                | jq -r '.matches[] | "\(.slug)\t\(.distance | tostring | .[0:5])\t\(.category)\t\(.name)"' ;;
+        show)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote dp show <slug>"
+            api GET "/design-patterns/$slug" \
+                | jq -r '
+                    "name:\t\(.name)",
+                    "category:\t\(.category)",
+                    "use_count:\t\(.use_count)",
+                    "intent:\t\(.intent)",
+                    "when_to_use:\n\(.when_to_use)",
+                    "when_not_to_use:\n\(.when_not_to_use)",
+                    "structure:\n\(.structure)",
+                    "example:\n\(.example_code)",
+                    "relationships:\n\(.relationships)"
+                ' ;;
+        use)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote dp use <slug> [--notes TEXT]"
+            shift
+            local notes=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --notes) notes="$2"; shift 2 ;;
+                    *) die "dp use: unknown arg: $1" ;;
+                esac
+            done
+            api POST "/design-patterns/$slug/use?notes=$(jq -nr --arg s "$notes" '$s | @uri')" "" \
+                | jq -r '"\(.action)\t\(.slug)"' ;;
+        *) die "dp: subcommands: list|find|show|use" ;;
+    esac
+}
+
+cmd_tech() {
+    # Technologies — concrete tools mapped to patterns + their limitations
+    need_api
+    local sub="${1:-list}"; shift || true
+    case "$sub" in
+        list)
+            local cat="" tag=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --category) cat="$2"; shift 2 ;;
+                    --tag)      tag="$2"; shift 2 ;;
+                    *) die "tech list: unknown arg: $1" ;;
+                esac
+            done
+            local url="/technologies"
+            local qs=""
+            [[ -n "$cat" ]] && qs="${qs}category=$cat&"
+            [[ -n "$tag" ]] && qs="${qs}tag=$tag&"
+            [[ -n "$qs" ]] && url="$url?${qs%&}"
+            api GET "$url" \
+                | jq -r '.technologies[] | "\(.category)\t\(.slug)\t\(.tags)\t\(.name)"' ;;
+        find)
+            local q="" cat=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --category) cat="$2"; shift 2 ;;
+                    *) q="$q $1"; shift ;;
+                esac
+            done
+            q="${q# }"
+            [[ -n "$q" ]] || die "usage: rote tech find <query> [--category CAT]"
+            local body
+            if [[ -n "$cat" ]]; then
+                body=$(jq -nc --arg q "$q" --arg c "$cat" '{query: $q, limit: 5, category: $c}')
+            else
+                body=$(jq -nc --arg q "$q" '{query: $q, limit: 5}')
+            fi
+            api POST /technologies/search "$body" \
+                | jq -r '.matches[] | "\(.slug)\t\(.distance | tostring | .[0:5])\t\(.category)\t\(.tags)\t\(.name)"' ;;
+        show)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote tech show <slug>"
+            api GET "/technologies/$slug" \
+                | jq -r '
+                    "name:\t\(.name)",
+                    "category:\t\(.category)",
+                    "tags:\t\(.tags)",
+                    "implements:\t\(.implements_patterns)",
+                    "when_to_use:\n\(.when_to_use)",
+                    "when_not_to_use:\n\(.when_not_to_use)",
+                    "limitations:\n\(.limitations)",
+                    "cost:\n\(.cost_notes)",
+                    "alternatives:\n\(.alternatives)"
+                ' ;;
+        use)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote tech use <slug> [--notes TEXT]"
+            shift
+            local notes=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --notes) notes="$2"; shift 2 ;;
+                    *) die "tech use: unknown arg: $1" ;;
+                esac
+            done
+            api POST "/technologies/$slug/use?notes=$(jq -nr --arg s "$notes" '$s | @uri')" "" \
+                | jq -r '"\(.action)\t\(.slug)"' ;;
+        *) die "tech: subcommands: list|find|show|use" ;;
+    esac
+}
+
+cmd_ap() {
+    need_api
+    local sub="${1:-list}"; shift || true
+    case "$sub" in
+        list)
+            api GET /anti-patterns \
+                | jq -r '.anti_patterns[] | "\(.slug)\t\(.hit_count)\t\(.title)"' ;;
+        find)
+            local q="$*"; [[ -n "$q" ]] || die "usage: rote ap find <query>"
+            local body
+            body=$(jq -nc --arg q "$q" '{query: $q, limit: 5}')
+            api POST /anti-patterns/search "$body" \
+                | jq -r '.matches[] | "\(.slug)\t\(.distance | tostring | .[0:5])\t\(.title)"' ;;
+        add)
+            [[ $# -ge 4 ]] || die "usage: rote ap add <slug> <title> <symptom> <remedy> [--cost text]"
+            local slug="$1" title="$2" symptom="$3" remedy="$4" cost=""
+            shift 4
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --cost) cost="$2"; shift 2 ;;
+                    *) die "ap add: unknown arg: $1" ;;
+                esac
+            done
+            local body
+            if [[ -n "$cost" ]]; then
+                body=$(jq -nc --arg slug "$slug" --arg t "$title" --arg s "$symptom" \
+                              --arg r "$remedy" --arg c "$cost" \
+                              '{slug:$slug, title:$t, symptom:$s, remedy:$r, token_cost:$c}')
+            else
+                body=$(jq -nc --arg slug "$slug" --arg t "$title" --arg s "$symptom" --arg r "$remedy" \
+                              '{slug:$slug, title:$t, symptom:$s, remedy:$r}')
+            fi
+            api POST /anti-patterns "$body" | jq -r '"\(.action)\t\(.slug)"' ;;
+        *) die "ap: subcommands: list|find|add" ;;
+    esac
+}
+
+# -----------------------------------------------------------------------------
+# Audit + health + up
+# -----------------------------------------------------------------------------
+cmd_audit() {
+    need_api
+    local limit="${1:-20}"
+    api GET "/audit?limit=$limit" \
+        | jq -r '.events[] | "\(.ts_unix_ms)\t\(.kind)\t\(.payload | tostring)"'
+}
+
+cmd_health() {
+    if api_up; then
+        api GET /healthz | jq -r '"\(.ok)\t\(.embed_model)\tvec=\(.sqlite_vec_version)"'
+    else
+        echo "down" ; exit 4
+    fi
+}
+
+cmd_up() {
+    if api_up; then
+        echo "already up"; exit 0
+    fi
+    echo "starting…"
+    nohup "$LIB_ROOT/server/start.sh" >>"$LIB_ROOT/server/data/server.log" 2>&1 </dev/null &
+    # Poll up to 30 s
+    for _ in {1..60}; do
+        sleep 0.5
+        api_up && { echo "up"; exit 0; }
+    done
+    die "did not come up in 30s — check $LIB_ROOT/server/data/server.log" 4
+}
+
+cmd_delegate() {
+    need_api
+    local sub="${1:-list}"; shift || true
+    case "$sub" in
+        list)
+            api GET /delegates | jq -r '
+                .delegates[] |
+                "\(.name)\t\(.kind)\t\(if .enabled then "on" else "off" end)\t" +
+                ((.capabilities // []) | map(. as $c |
+                    (((.. | objects | select(.capability == $c)) // {success_rate: null, n: 0})
+                    | if .success_rate then "\($c)=\((.success_rate*100|floor))%/\(.n)" else "\($c)" end)
+                ) | join(","))
+            ' 2>/dev/null || \
+            # Fallback if jq path expression chokes on the nested form: simpler row
+            api GET /delegates | jq -r '.delegates[] | "\(.name)\t\(.kind)\t\(if .enabled then "on" else "off" end)\t\(.capabilities|join(","))"' ;;
+        show)
+            local name="${1:-}"; [[ -n "$name" ]] || die "usage: rote delegate show NAME"
+            api GET "/delegates/$name" | jq -r '
+                "name:\t\(.name)",
+                "kind:\t\(.kind)",
+                "enabled:\t\(.enabled)",
+                "contact:\t\(.contact | tostring)",
+                "capabilities:\t\(.capabilities | join(","))",
+                "notes:\t\(.notes)",
+                (.stats.per_capability[]? | "stat:\t\(.capability)\t\((.success_rate*100|floor))%/\(.n) avg_lat=\(.avg_latency_ms // "null")ms saved=\(.token_savings)"),
+                (.recent_log[]? | "log:\t\(.ts_unix_ms)\t\(.capability)\t\(.outcome)\t\(.task_summary)")
+            ' ;;
+        best)
+            local cap="${1:-}"; [[ -n "$cap" ]] || die "usage: rote delegate best CAPABILITY"
+            local resp; resp=$(api GET "/delegates/best?capability=$cap")
+            if [[ "$(echo "$resp" | jq -r '.best')" == "null" ]]; then
+                echo "no qualified delegate for: $cap" >&2; exit 4
+            fi
+            echo "$resp" | jq -r '
+                .best |
+                "name:\t\(.name)\nkind:\t\(.kind)\ncontact:\t\(.contact | tostring)\nsuccess_rate:\t\((.success_rate*100|floor))%\nattempts:\t\(.attempts)"
+            ' ;;
+        log)
+            local name="${1:-}" cap="${2:-}" outcome="${3:-}"
+            [[ -n "$name" && -n "$cap" && -n "$outcome" ]] \
+                || die "usage: rote delegate log NAME CAPABILITY OUTCOME [--task T] [--latency-ms N] [--saved N] [--notes T]"
+            shift 3
+            local task="" latency="" saved="" notes=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --task)       task="$2"; shift 2 ;;
+                    --latency-ms) latency="$2"; shift 2 ;;
+                    --saved)      saved="$2"; shift 2 ;;
+                    --notes)      notes="$2"; shift 2 ;;
+                    *) die "log: unknown arg: $1" ;;
+                esac
+            done
+            [[ -n "$task" ]] || die "log: --task required"
+            local body
+            body=$(jq -nc \
+                --arg d "$name" --arg c "$cap" --arg o "$outcome" --arg t "$task" \
+                --arg n "$notes" \
+                --argjson lat "${latency:-null}" --argjson sv "${saved:-null}" \
+                '{delegate: $d, capability: $c, outcome: $o, task_summary: $t,
+                  latency_ms: $lat, token_savings: $sv, notes: $n}')
+            api POST /delegations "$body" | jq -r '"\(.action)\t\(.delegate)\t\(.outcome)"' ;;
+        set-url)
+            local name="${1:-}" url="${2:-}"
+            [[ -n "$name" && -n "$url" ]] || die "usage: rote delegate set-url NAME URL"
+            local body
+            body=$(jq -nc --arg u "$url" '{contact: {url: $u}}')
+            api PATCH "/delegates/$name" "$body" | jq -r '"\(.name)\t\(.action)"' ;;
+        enable|disable)
+            local name="${1:-}"; [[ -n "$name" ]] || die "usage: rote delegate $sub NAME"
+            local body
+            body=$(jq -nc --argjson e "$([[ $sub == enable ]] && echo true || echo false)" '{enabled: $e}')
+            api PATCH "/delegates/$name" "$body" | jq -r '"\(.name)\t\(.action)"' ;;
+        dispatch)
+            # Pick the right dispatcher by delegate kind.  Caller passes the
+            # delegate name + capability + the dispatcher's own flags after a
+            # `--` separator; everything after `--` is forwarded verbatim.
+            local name="${1:-}" cap="${2:-}"
+            [[ -n "$name" && -n "$cap" ]] \
+                || die "usage: rote delegate dispatch NAME CAPABILITY -- <dispatcher args>"
+            shift 2
+            [[ "${1:-}" == "--" ]] && shift || true
+            local kind
+            kind=$(api GET "/delegates/$name" | jq -r '.kind')
+            case "$kind" in
+                llm)
+                    # Ollama vs sglang both kind=llm; disambiguate by delegate name.
+                    if [[ "$name" == *sglang* ]]; then
+                        exec "$LIB_ROOT/scripts/dispatch-to-sglang.sh" \
+                            --delegate "$name" --capability "$cap" "$@"
+                    else
+                        exec "$LIB_ROOT/scripts/dispatch-to-ollama.sh" \
+                            --delegate "$name" --capability "$cap" "$@"
+                    fi ;;
+                mcp)
+                    exec "$LIB_ROOT/scripts/dispatch-to-metamcp.sh" \
+                        --delegate "$name" --capability "$cap" "$@" ;;
+                *) die "no dispatcher for delegate kind: $kind" ;;
+            esac ;;
+        *) die "delegate: subcommands: list|show|best|log|set-url|enable|disable|dispatch" ;;
+    esac
+}
+
+cmd_gui() {
+    # Just print the URL.  Don't try to open a browser — we have no idea
+    # whether $DISPLAY is set, whether wslview is around, etc.  The caller can
+    # paste the URL or run `wslview $(rote gui)` themselves.
+    echo "$API/"
+    api_up || echo "(api is down — rote up)" >&2
+}
+
+cmd_verify() {
+    exec "$LIB_ROOT/scripts/verify-context-system.sh" --api "$API" "$@"
+}
+
+cmd_bootstrap() {
+    exec "$LIB_ROOT/scripts/bootstrap-context-system.sh" "$@"
+}
+
+cmd_mcp_install() {
+    # Default --command points at the local mcp-server/start.sh, --api at the
+    # API the CLI itself is configured against.
+    exec "$LIB_ROOT/scripts/install-mcp-client-config.sh" \
+        --command "$LIB_ROOT/mcp-server/start.sh" \
+        --api "$API" "$@"
+}
+
+cmd_skills_install() {
+    exec "$LIB_ROOT/scripts/install-claude-code-skills.sh" "$@"
+}
+
+cmd_import() {
+    # Bulk-import existing scripts from a tree into the library.
+    exec python3 "$LIB_ROOT/scripts/import-scripts.py" "$@"
+}
+
+cmd_new() {
+    # Scaffold a new library script with the required frontmatter pre-filled.
+    # The goal: writing a library entry should cost no more keystrokes than
+    # writing a one-off in /tmp.
+    local name="${1:-}" purpose="${2:-}"
+    [[ -n "$name" && -n "$purpose" ]] \
+        || die "usage: rote new <name>[.sh|.ps1|.py|.js] \"<purpose>\" [--family <slug>] [--environment <tag>]"
+    shift 2
+    local family="" environment=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --family)      family="$2"; shift 2 ;;
+            --environment) environment="$2"; shift 2 ;;
+            *) die "new: unknown arg: $1" ;;
+        esac
+    done
+    # Default extension: .sh
+    [[ "$name" == *.* ]] || name="${name}.sh"
+    local stem="${name%.*}" ext="${name##*.}"
+    [[ -z "$family"      ]] && family="$stem"
+    [[ -z "$environment" ]] && case "$ext" in
+        sh|bash) environment="posix-bash" ;;
+        zsh)     environment="posix-zsh" ;;
+        ps1)     environment="windows-pwsh" ;;
+        py)      environment="cross-python" ;;
+        js|mjs|ts) environment="cross-node" ;;
+        rb)      environment="cross-ruby" ;;
+        *)       environment="unknown" ;;
+    esac
+    local path="$LIB_ROOT/scripts/$name"
+    [[ -e "$path" ]] && die "already exists: $path  (edit it directly to extend)"
+
+    case "$ext" in
+        sh|bash)
+            cat > "$path" << EOF
+#!/usr/bin/env bash
+# =============================================================================
+# script: $name
+# purpose: $purpose
+# family: $family
+# environment: $environment
+# inputs:
+#   --flag <value>    description
+# outputs: stdout shape; exit code meaning
+# touches-secrets: false
+# when-to-use:    <when this is the right tool>
+# when-NOT-to-use: <when reaching for it is the wrong call>
+# added: $(date +%Y-%m-%d)
+# =============================================================================
+set -uo pipefail
+
+while [[ \$# -gt 0 ]]; do
+    case "\$1" in
+        -h|--help) sed -n '3,15p' "\$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        *) echo "unknown arg: \$1" >&2; exit 5 ;;
+    esac
+done
+
+# TODO: implement
+EOF
+            ;;
+        ps1)
+            cat > "$path" << EOF
+# =============================================================================
+# script: $name
+# purpose: $purpose
+# family: $family
+# environment: $environment
+# inputs:   -Flag <value>   description
+# outputs:  stdout shape; exit code meaning
+# touches-secrets: false
+# when-to-use:    <when this is the right tool>
+# when-NOT-to-use: <when reaching for it is the wrong call>
+# added: $(date +%Y-%m-%d)
+# =============================================================================
+param()
+# TODO: implement
+EOF
+            ;;
+        py)
+            cat > "$path" << EOF
+#!/usr/bin/env python3
+"""
+script: $name
+purpose: $purpose
+family: $family
+environment: $environment
+inputs:   --flag <value>   description
+outputs:  stdout shape; exit code meaning
+touches-secrets: false
+when-to-use:    <when this is the right tool>
+when-NOT-to-use: <when reaching for it is the wrong call>
+added: $(date +%Y-%m-%d)
+"""
+import sys
+# TODO: implement
+EOF
+            ;;
+        js|mjs)
+            cat > "$path" << EOF
+#!/usr/bin/env node
+// =============================================================================
+// script: $name
+// purpose: $purpose
+// family: $family
+// environment: $environment
+// inputs:   --flag <value>   description
+// outputs:  stdout shape; exit code meaning
+// touches-secrets: false
+// when-to-use:    <when this is the right tool>
+// when-NOT-to-use: <when reaching for it is the wrong call>
+// added: $(date +%Y-%m-%d)
+// =============================================================================
+// TODO: implement
+EOF
+            ;;
+        *)
+            cat > "$path" << EOF
+# script: $name
+# purpose: $purpose
+# family: $family
+# environment: $environment
+# added: $(date +%Y-%m-%d)
+EOF
+            ;;
+    esac
+    chmod +x "$path"
+    echo "$path"
+    echo "(family=$family environment=$environment; the API auto-reindexes on next list/search)" >&2
+}
+
+cmd_prompt() {
+    need_api
+    local sub="${1:-list}"; shift || true
+    case "$sub" in
+        list)
+            local cat=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --category) cat="$2"; shift 2 ;; *) die "prompt list: unknown arg: $1" ;; esac
+            done
+            local url="/prompts"; [[ -n "$cat" ]] && url="$url?category=$cat"
+            api GET "$url" | jq -r '.prompts[] | "\(.category)\t\(.slug)\t\(.use_count)\t\(.name)"' ;;
+        find)
+            local q="" cat=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --category) cat="$2"; shift 2 ;; *) q="$q $1"; shift ;; esac
+            done
+            q="${q# }"
+            [[ -n "$q" ]] || die "usage: rote prompt find <query> [--category CAT]"
+            local body
+            if [[ -n "$cat" ]]; then
+                body=$(jq -nc --arg q "$q" --arg c "$cat" '{query: $q, limit: 5, category: $c}')
+            else
+                body=$(jq -nc --arg q "$q" '{query: $q, limit: 5}')
+            fi
+            api POST /prompts/search "$body" \
+                | jq -r '.matches[] | "\(.slug)\t\(.distance | tostring | .[0:5])\t\(.category)\t\(.name)"' ;;
+        show)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote prompt show <slug>"
+            api GET "/prompts/$slug" \
+                | jq -r '"name:\t\(.name)\ncategory:\t\(.category)\nuse_count:\t\(.use_count)\ntags:\t\(.tags)\nwhen_to_use:\t\(.when_to_use)\n",
+                         "placeholders:", (.placeholders[]? | "  \(.name) — \(.description)\(if .example != "" then " (example: " + .example + ")" else "" end)"),
+                         "\n--- prompt ---\n\(.body)"' ;;
+        expand)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote prompt expand <slug> --VAR=value ..."
+            shift
+            local jq_args="" jq_obj_parts="{"
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --*=*)
+                        local kv="${1#--}"
+                        local key="${kv%%=*}"
+                        local value="${kv#*=}"
+                        jq_args+=" --arg ${key} \"${value}\""
+                        jq_obj_parts+="${key}: \$${key}, "
+                        shift ;;
+                    *) die "expand: unknown arg: $1" ;;
+                esac
+            done
+            jq_obj_parts="${jq_obj_parts%, }}"
+            local body
+            body=$(eval "jq -nc $jq_args '{values: $jq_obj_parts}'")
+            api POST "/prompts/$slug/expand" "$body" | jq -r '
+                "missing:\t\(.missing | join(","))",
+                "\n--- expanded ---\n\(.expanded)"' ;;
+        use)
+            local slug="${1:-}"; [[ -n "$slug" ]] || die "usage: rote prompt use <slug>"
+            shift
+            local notes=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in --notes) notes="$2"; shift 2 ;; *) die "use: unknown arg: $1" ;; esac
+            done
+            api POST "/prompts/$slug/use?notes=$(jq -nr --arg s "$notes" '$s | @uri')" "" \
+                | jq -r '"\(.action)\t\(.slug)"' ;;
+        *) die "prompt: subcommands: list|find|show|expand|use" ;;
+    esac
+}
+
+# -----------------------------------------------------------------------------
+# Dispatch
+# -----------------------------------------------------------------------------
+sub="${1:-help}"; shift || true
+case "$sub" in
+    find)    cmd_find    "$@" ;;
+    list)    cmd_list "$@" ;;
+    family)  cmd_family "$@" ;;
+    show)    cmd_show    "$@" ;;
+    run)     cmd_run     "$@" ;;
+    vault)   cmd_vault   "$@" ;;
+    ap)      cmd_ap      "$@" ;;
+    dp)      cmd_dp      "$@" ;;
+    tech)    cmd_tech    "$@" ;;
+    snippet) cmd_snippet "$@" ;;
+    prompt)  cmd_prompt  "$@" ;;
+    stack)   cmd_stack   "$@" ;;
+    cmd)     cmd_cmd     "$@" ;;
+    audit)   cmd_audit   "$@" ;;
+    delegate|delegates) cmd_delegate "$@" ;;
+    health)  cmd_health ;;
+    up)      cmd_up ;;
+    gui)     cmd_gui ;;
+    verify)  cmd_verify "$@" ;;
+    bootstrap) cmd_bootstrap "$@" ;;
+    mcp-install) cmd_mcp_install "$@" ;;
+    skills-install) cmd_skills_install "$@" ;;
+    new)     cmd_new "$@" ;;
+    import)  cmd_import "$@" ;;
+    script-log) cmd_script_log "$@" ;;
+    help|-h|--help)
+        sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//' ;;
+    *) die "unknown subcommand: $sub (try: rote help)" ;;
+esac
