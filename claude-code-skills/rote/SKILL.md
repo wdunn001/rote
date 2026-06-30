@@ -15,6 +15,7 @@ There is a local Rote at `/path/to/rote/` exposing reusable, parameterized scrip
 4. **For copying code blocks between files, use `copy-code-block.sh`** — never Read-then-Write-line-by-line. Anchor by regex or line range, optional transform pipe, optional anchored insert vs block-replace.
 5. **For SSH ops on remote hosts, use `ssh-exec.sh` or `ssh-docker-restart.sh`** — never inline `ssh user@host "complex shell"` chains. The library scripts handle timeout, latency capture, and audit logging.
 6. **When an operation succeeds and you can imagine doing it again next session, promote it.** Either save it as a new library script OR add a flag to the closest existing one. The 30 seconds of frontmatter pays back forever.
+7. **Make it generic, not a one-off.** A library script must be parameterized: take the paths, hosts, names, and values that vary as `--flags` (with sane defaults where possible), never bake in this run's specifics. A script that only works for today's exact inputs is not a reusable asset, it is a one-off that happens to live in the library. The `inputs:` frontmatter is the contract — if it is empty, the script almost certainly is not reusable yet. The same goes for what you save as snippets and patterns: extract the shape, parameterize the holes (`${PLACEHOLDER}`), and write down what each one is for.
 
 ## When to invoke
 
