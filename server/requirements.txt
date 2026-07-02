@@ -1,16 +1,13 @@
-# Rote API runtime deps.  Pinned for reproducibility.
+# Rote core runtime deps. Pinned for reproducibility.
+# These four are small and offline-friendly (installable from a local package
+# index / prefetched wheels). The optional local embedding backend lives in
+# requirements-embed.txt and is NOT needed when OLLAMA_EMBED_URL points at an
+# embed endpoint you own.
 
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 pydantic==2.10.4
 
-# sqlite-vec — loadable SQLite extension for vector similarity search.  Ships
-# precompiled binaries for the major platforms; the Python helper handles
-# loading via `sqlite_vec.load(connection)`.
+# sqlite-vec — loadable SQLite extension for vector similarity search. Ships
+# precompiled binaries for the major platforms; loaded via sqlite_vec.load().
 sqlite-vec==0.1.6
-
-# sentence-transformers + its transitive deps (torch, transformers, etc.) for
-# the all-MiniLM-L6-v2 embedding model.  Lazy-loaded — pays the ~80MB download
-# only on first /scripts/search or /anti-patterns/search call.  CPU-only is
-# fine for this scale; we don't pin torch's variant so pip picks the default.
-sentence-transformers==3.3.1

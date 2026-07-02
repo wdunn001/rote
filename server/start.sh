@@ -60,11 +60,23 @@ if [[ -z "${VENV_DIR:-}" ]]; then
 fi
 
 if [[ ! -d "$VENV_DIR/bin" ]]; then
-    echo "[start.sh] first run — creating venv at $VENV_DIR + installing deps (~3 GB; ~3 min)"
+    echo "[start.sh] first run — creating venv at $VENV_DIR + installing core deps"
     mkdir -p "$(dirname "$VENV_DIR")"
     python3 -m venv "$VENV_DIR"
     "$VENV_DIR/bin/pip" install --quiet --upgrade pip wheel
+    # Core deps are small and pure-Python-ish (fastapi, uvicorn, pydantic,
+    # sqlite-vec) — installable from a local index for a fully offline build.
     "$VENV_DIR/bin/pip" install --quiet -r requirements.txt
+    # Local embedding deps (sentence-transformers + torch, ~2 GB, plus a model
+    # downloaded from HuggingFace on first use) are ONLY needed when Rote does
+    # its own embeddings. Skip them for an offline / light install by pointing
+    # OLLAMA_EMBED_URL at an embed endpoint you own, or ROTE_NO_EMBED_DEPS=1.
+    if [[ -z "${OLLAMA_EMBED_URL:-}" && "${ROTE_NO_EMBED_DEPS:-0}" != "1" ]]; then
+        echo "[start.sh] installing local embedding deps (~2 GB; set OLLAMA_EMBED_URL to skip)"
+        "$VENV_DIR/bin/pip" install --quiet -r requirements-embed.txt
+    else
+        echo "[start.sh] skipping local embedding deps (using OLLAMA_EMBED_URL / ROTE_NO_EMBED_DEPS)"
+    fi
 fi
 
 # Maintain the ./.venv symlink so callers that hardcode .venv still work.

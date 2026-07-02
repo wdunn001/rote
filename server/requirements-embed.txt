@@ -1,0 +1,9 @@
+# OPTIONAL: local embedding backend. Only install this if Rote should compute
+# embeddings itself (i.e. OLLAMA_EMBED_URL is NOT set). Pulls torch (~2 GB) and,
+# on first search, downloads the all-MiniLM-L6-v2 model from HuggingFace.
+#
+# For a fully offline install, prefer pointing OLLAMA_EMBED_URL at a local
+# Ollama and skipping this file entirely. If you do want the local model
+# offline, pre-cache it (set HF_HOME to a populated cache and HF_HUB_OFFLINE=1).
+
+sentence-transformers==3.3.1
