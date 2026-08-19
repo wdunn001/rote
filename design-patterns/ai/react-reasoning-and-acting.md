@@ -16,11 +16,11 @@ You want the model's reasoning visible / auditable.
 Classic shape: 'Thought → Action → Observation → Thought → ... → Final Answer.'
 
 # When NOT to use
-A single tool call suffices — the reasoning loop is overhead.
+A single tool call suffices. The reasoning loop is overhead.
 
-Tools are expensive and the model misuses them — guardrail the loop with budgets.
+Tools are expensive and the model misuses them. Guardrail the loop with budgets.
 
-Latency is critical — multiple LLM turns + tool calls compound.
+Latency is critical. Multiple LLM turns + tool calls compound.
 
 # Structure
 System prompt enables tools.  Each turn: LLM either (a) thinks aloud, (b) calls a tool, or (c) finalizes.  Run until 'final answer' or budget exhausted.  Modern frameworks: OpenAI function calling, Anthropic tool use, MCP.

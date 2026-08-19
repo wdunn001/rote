@@ -16,11 +16,11 @@ ss -tlnp
 Quick: what's listening on what TCP port, owned by which process. Modern replacement for `netstat -tlnp`.
 
 # When NOT to use
-macOS — `ss` isn't standard; use `lsof -iTCP -sTCP:LISTEN -nP`.
+macOS, `ss` isn't standard; use `lsof -iTCP -sTCP:LISTEN -nP`.
 
 # Gotchas
 - `-p` (process) needs root to show PIDs from other users.
-- `-n` skips DNS / port-name resolution — much faster on busy boxes.
+- `-n` skips DNS / port-name resolution, much faster on busy boxes.
 - `-t` for TCP, `-u` for UDP, `-l` for listening only, `-a` for all states.
 - Drop `-l` to see established connections too: `ss -tnp`.
 

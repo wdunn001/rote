@@ -7,13 +7,13 @@ tags: review, bugs, adversarial, verification
 
 # Prompt
 
-Review ${TARGET} adversarially — assume it's wrong and try to prove it.
+Review ${TARGET} adversarially. Assume it's wrong and try to prove it.
 
 Hunt specifically for: off-by-one and boundary errors, null/empty/unset cases, error paths that swallow or mislabel failures, race conditions and shared-state mutation, resource leaks, incorrect assumptions about input shape, and security issues (injection, authz gaps, secret handling).
 
 For each finding:
 - Quote the exact code (file:line).
-- State the concrete trigger — the input or sequence that breaks it.
+- State the concrete trigger, the input or sequence that breaks it.
 - Rate severity (critical / high / medium / low) and confidence.
 - Give the minimal fix.
 

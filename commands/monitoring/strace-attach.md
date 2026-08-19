@@ -16,13 +16,13 @@ strace -p <pid> -f -e trace=network -o /tmp/strace.out
 A process is hung or misbehaving and you want to see what syscalls it's making. Common: file-IO stalls, network hangs, sleeps.
 
 # When NOT to use
-Production at scale — strace is expensive (every syscall is paused). On hot paths it can slow the process dramatically.
-Low-level performance work — use `perf` or `bpftrace` instead.
+Production at scale, strace is expensive (every syscall is paused). On hot paths it can slow the process dramatically.
+Low-level performance work, use `perf` or `bpftrace` instead.
 
 # Gotchas
 - `-f` traces forks (child threads/processes). Without it, a forking process disappears from view.
-- `-e trace=network` (or `=file`, `=signal`, etc.) filters by syscall category — drastically reduces output noise.
-- Strace adds significant overhead — a CPU-bound process may be 10-100x slower while attached.
+- `-e trace=network` (or `=file`, `=signal`, etc.) filters by syscall category, drastically reduces output noise.
+- Strace adds significant overhead. A CPU-bound process may be 10-100x slower while attached.
 - Attaching to PID 1 (init) is almost always a bad idea.
 - Modern alternative for live observation without slowdown: `bpftrace` or `bcc` tools.
 

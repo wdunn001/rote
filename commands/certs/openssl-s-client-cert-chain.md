@@ -16,8 +16,8 @@ openssl s_client -showcerts -connect <host>:443 -servername <host> < /dev/null
 Inspect the full TLS handshake + cert chain a server presents. Diagnose 'why does my client say this cert is invalid'.
 
 # When NOT to use
-Quick cert info — `openssl x509 -text -in <file>` on a downloaded cert is faster.
-Production monitoring — Prometheus exporters / managed cert monitoring exist for that.
+Quick cert info, `openssl x509 -text -in <file>` on a downloaded cert is faster.
+Production monitoring, Prometheus exporters / managed cert monitoring exist for that.
 
 # Gotchas
 - WITHOUT `-servername <host>`, SNI isn't sent, and you may get the default cert instead of the one for your host.

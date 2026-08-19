@@ -19,11 +19,11 @@ Extensions: pgvector for embeddings, PostGIS for geo, TimescaleDB for time-serie
 Acme's primary DB.
 
 # When NOT to use
-You need horizontal scale across many writers — Postgres scales to a point; if you need cross-region active-active, look at CockroachDB / YugabyteDB / Spanner.
+You need horizontal scale across many writers. Postgres scales to a point; if you need cross-region active-active, look at CockroachDB / YugabyteDB / Spanner.
 
-Pure document store with no relational needs — MongoDB / DynamoDB are simpler for some shapes.
+Pure document store with no relational needs. MongoDB / DynamoDB are simpler for some shapes.
 
-Edge / device storage — SQLite is the answer.
+Edge / device storage. SQLite is the answer.
 
 # Limitations
 - Vertical scale only out of the box (logical replication helps reads; writes scale via partitioning + sharding effort).
@@ -31,7 +31,7 @@ Edge / device storage — SQLite is the answer.
 - Connection pooling needs a pooler (PgBouncer) at scale.
 
 # Cost
-Free open-source.  Cloud-managed: AWS RDS / Azure Postgres / Supabase / Neon — pay for compute + storage + IO.
+Free open-source.  Cloud-managed: AWS RDS / Azure Postgres / Supabase / Neon, pay for compute + storage + IO.
 
 # Alternatives
 MySQL/MariaDB (similar shape).  SQL Server (.NET-native, commercial).  SQLite (embedded).  CockroachDB (horizontally scalable Postgres-compatible).

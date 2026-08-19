@@ -16,11 +16,11 @@ Token cost matters: caching cuts repeated tokens from ~$X/1M to ~$X/10M for cach
 Anthropic's prompt cache has a 5-minute TTL; calls within 5 min of each other reuse the cache.
 
 # When NOT to use
-Prompts change every call — nothing to cache.
+Prompts change every call, nothing to cache.
 
 You can't structure the prompt to put stable parts first.
 
-The marginal cost saved isn't worth the engineering — for low-volume apps.
+The marginal cost saved isn't worth the engineering, for low-volume apps.
 
 # Structure
 Put stable content FIRST in the prompt: system instructions → tool definitions → skill bodies → retrieved RAG chunks → conversation history → current user message.  Mark cache breakpoints (Anthropic) or rely on automatic prefix matching (OpenAI).

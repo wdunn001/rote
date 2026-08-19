@@ -16,7 +16,7 @@ openssl x509 -text -noout -in <cert.pem>
 Inspect a downloaded cert's subject / issuer / SANs / validity / extensions / signature algorithm.
 
 # When NOT to use
-JWT or other non-X509 token — use `jwt-cli` or `jq`.
+JWT or other non-X509 token. Use `jwt-cli` or `jq`.
 
 # Gotchas
 - `-noout` SUPPRESSES the PEM dump at the end. Without it you get human-readable PLUS the PEM (ugly).

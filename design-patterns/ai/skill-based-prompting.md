@@ -16,9 +16,9 @@ You want behavior to be discoverable (`/skill-name` slash commands).
 Examples: Claude Code skills (chronicle, rote, secret-handling, design-patterns), task-specific prompt templates.
 
 # When NOT to use
-There's only one task class — over-modularization adds discovery cost.
+There's only one task class. Over-modularization adds discovery cost.
 
-Skills become invisible to the model (it never reaches for them) — they're not useful at the bottom of a long prompt.
+Skills become invisible to the model (it never reaches for them). They're not useful at the bottom of a long prompt.
 
 Skills overlap so much they confuse the model on selection.
 

@@ -9,7 +9,7 @@ references: Ink & Switch 'Local-first software'; Martin Kleppmann
 # When to use
 Users work disconnected (field tech, drone pilots in flight, traveling sales, anyone with flaky connectivity).
 
-Latency-sensitive UI (typing in a doc, drawing on a map) — round-trips to a server feel laggy.
+Latency-sensitive UI (typing in a doc, drawing on a map). Round-trips to a server feel laggy.
 
 Multi-device per user where each device should keep working independently.
 

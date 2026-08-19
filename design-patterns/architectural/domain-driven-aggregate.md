@@ -11,12 +11,12 @@ Domain has complex invariants spanning multiple entities (a Swarm + its Formatio
 
 You want clear transactional boundaries (the aggregate is what gets saved atomically).
 
-Concurrent updates need predictable conflict semantics — the aggregate is the unit of optimistic locking.
+Concurrent updates need predictable conflict semantics. The aggregate is the unit of optimistic locking.
 
 # When NOT to use
-Anemic domain — your 'aggregates' are just DTOs with no behavior.  Aggregates are useless if entities don't enforce invariants.
+Anemic domain, your 'aggregates' are just DTOs with no behavior.  Aggregates are useless if entities don't enforce invariants.
 
-You're forcing a small operation into a huge aggregate just because — split it.  Smaller aggregates are better.
+You're forcing a small operation into a huge aggregate just because. Split it.  Smaller aggregates are better.
 
 # Structure
 Aggregate root is the only externally-visible entity.  Internal entities and value objects are accessed only via the root.  All mutations go through the root.  Persistence is per-aggregate, atomically.

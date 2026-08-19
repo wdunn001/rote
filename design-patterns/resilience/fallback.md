@@ -14,9 +14,9 @@ The primary fails for a reason the fallback isn't subject to (independent failur
 The user experience is graceful degradation, not error.
 
 # When NOT to use
-There's no honest fallback — returning empty / null / stale is worse than failing visibly.
+There's no honest fallback. Returning empty / null / stale is worse than failing visibly.
 
-The fallback masks a real bug — alerting + visible failure surface the issue faster.
+The fallback masks a real bug. Alerting + visible failure surface the issue faster.
 
 The fallback diverges from the primary in a way that creates split-brain.
 

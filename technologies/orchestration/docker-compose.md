@@ -15,9 +15,9 @@ Multi-service apps where Kubernetes is overkill.
 Acme's deploy.cjs ships docker compose stacks for prod.
 
 # When NOT to use
-Multi-host / multi-region orchestration — use Kubernetes / Nomad.
+Multi-host / multi-region orchestration. Use Kubernetes / Nomad.
 
-You need rolling updates with zero-downtime invariants out of the box — Compose's update flow is basic.
+You need rolling updates with zero-downtime invariants out of the box. Compose's update flow is basic.
 
 # Limitations
 - Single host (or use Swarm which is dead-end).

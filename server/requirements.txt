@@ -8,6 +8,6 @@ fastapi==0.115.6
 uvicorn[standard]==0.34.0
 pydantic==2.10.4
 
-# sqlite-vec — loadable SQLite extension for vector similarity search. Ships
+# sqlite-vec, loadable SQLite extension for vector similarity search. Ships
 # precompiled binaries for the major platforms; loaded via sqlite_vec.load().
 sqlite-vec==0.1.6

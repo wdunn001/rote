@@ -16,10 +16,10 @@ docker logs --tail 100 -f <container>
 Live-tail the last N lines of a container's logs to debug a misbehaving service.
 
 # When NOT to use
-Log analysis at scale — pipe to a log aggregator (Loki, ELK, Splunk). The docker JSON-file driver isn't great at huge logs.
+Log analysis at scale. Pipe to a log aggregator (Loki, ELK, Splunk). The docker JSON-file driver isn't great at huge logs.
 
 # Gotchas
-- Default log driver is `json-file`; if you've set `journald`, `docker logs` may return nothing — use `journalctl CONTAINER_NAME=<name>`.
+- Default log driver is `json-file`; if you've set `journald`, `docker logs` may return nothing. Use `journalctl CONTAINER_NAME=<name>`.
 - `--tail all` shows the entire history; on a long-running container this can be GB.
 - `--since 5m` and `--until 1m` (relative) or `--since 2026-01-15` (absolute) filter time ranges.
 - Use `-t` to prefix each line with the timestamp (handy when correlating across logs).

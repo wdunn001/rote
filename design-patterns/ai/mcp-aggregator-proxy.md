@@ -16,7 +16,7 @@ Tools live on different hosts; a proxy reaches them on the LLM's behalf.
 Example: MetaMCP on edge-host aggregates this library's MCP server + others.
 
 # When NOT to use
-One MCP server is enough — direct connection.
+One MCP server is enough, direct connection.
 
 The aggregator becomes a single point of failure with no high-availability story.
 

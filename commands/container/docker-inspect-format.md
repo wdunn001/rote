@@ -13,13 +13,13 @@ docker inspect --format '{{.State.Status}} {{.State.Health.Status}}' <container>
 ```
 
 # When to use
-Scripted introspection of container state — health status, IPs, mounts, env vars.
+Scripted introspection of container state, health status, IPs, mounts, env vars.
 
 # When NOT to use
-Quick human-readable look — just `docker inspect` and read the JSON.
+Quick human-readable look, just `docker inspect` and read the JSON.
 
 # Gotchas
-- The Go template language is the format DSL. `{{.State.Health.Status}}` returns `<no value>` (literally) when the container has no HEALTHCHECK — handle that case in your script.
+- The Go template language is the format DSL. `{{.State.Health.Status}}` returns `<no value>` (literally) when the container has no HEALTHCHECK, handle that case in your script.
 - `.HostConfig.PortBindings`, `.NetworkSettings.Networks`, `.Mounts` are the most useful subtrees.
 - `docker inspect` accepts container OR image as the arg; same template DSL.
 

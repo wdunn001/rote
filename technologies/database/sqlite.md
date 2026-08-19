@@ -19,14 +19,14 @@ Local-first apps where the device is the primary owner of the data.
 # When NOT to use
 Many concurrent writers (SQLite supports one writer at a time; WAL mode helps but isn't unlimited).
 
-You need network access to the DB — SQLite is file-based.
+You need network access to the DB. SQLite is file-based.
 
-You need replication / HA out of the box — Litestream and rqlite help but aren't seamless.
+You need replication / HA out of the box. Litestream and rqlite help but aren't seamless.
 
 # Limitations
 - Single-writer constraint.
 - Schema migration on a running app needs care (PRAGMA user_version, careful ALTER).
-- Some extensions (sqlite-vec) need loadable extension support — disabled in some hosts.
+- Some extensions (sqlite-vec) need loadable extension support, disabled in some hosts.
 
 # Cost
 Free.  Zero infra.

@@ -15,20 +15,20 @@ references: Get-Help New-NetFirewallRule
 ```
 
 # When to use
-You're exposing a Windows-hosted service on a specific port and need WSL — or another LAN host — to reach it. Common case: Ollama, sglang, or any locally-installed daemon that binds 0.0.0.0 (or you want reachable from WSL).
+You're exposing a Windows-hosted service on a specific port and need WSL, or another LAN host, to reach it. Common case: Ollama, sglang, or any locally-installed daemon that binds 0.0.0.0 (or you want reachable from WSL).
 
 The rote uses this to make Windows-side Ollama reachable from WSL at port 11434.
 
 # When NOT to use
-- Native Linux — use `ufw`, `iptables`, or `nft`.
-- macOS — different stack (`pf`).
-- You don't actually want LAN inbound — the service should bind localhost only.
+- Native Linux, use `ufw`, `iptables`, or `nft`.
+- macOS, different stack (`pf`).
+- You don't actually want LAN inbound. The service should bind localhost only.
 - You're inside a corporate environment where firewall rules are managed by GPO; your local rule won't override.
 
 # Gotchas
 - New-NetFirewallRule REQUIRES ELEVATION. From a non-admin PowerShell session, this throws "Access is denied." You need an admin-elevated shell, OR add the rule from the Windows Firewall GUI manually then add `--skip-firewall` to library scripts.
 - `-Profile Any` is broad. Use `-Profile Private` if you only need it reachable from your LAN.
-- If you set OLLAMA_HOST=0.0.0.0 (or any bind-all), the firewall rule is required even for LOOPBACK from WSL — because WSL2's bridge interface is treated as a separate network adapter.
+- If you set OLLAMA_HOST=0.0.0.0 (or any bind-all), the firewall rule is required even for LOOPBACK from WSL, because WSL2's bridge interface is treated as a separate network adapter.
 - Rules persist across reboots. To remove: `Remove-NetFirewallRule -DisplayName '...'`.
 - `Get-NetFirewallRule -DisplayName '...'` shows existing rules; idempotent scripts should check first to avoid duplicates.
 

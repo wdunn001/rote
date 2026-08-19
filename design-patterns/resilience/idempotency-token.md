@@ -16,7 +16,7 @@ Network is unreliable enough that the client genuinely doesn't know if its first
 # When NOT to use
 The operation is already idempotent by nature (PUT, conditional update).
 
-You're not actually deduplicating — the token is decorative.  Real dedup needs a unique-key constraint + 'already exists' handling.
+You're not actually deduplicating. The token is decorative.  Real dedup needs a unique-key constraint + 'already exists' handling.
 
 # Structure
 Client generates a UUID per logical operation.  Server stores (token → result) in a dedup cache.  Repeated POST with same token returns the cached result (not a re-execution).  TTL bounds the cache.

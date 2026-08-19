@@ -15,7 +15,7 @@ native module).
 
 # When NOT to use
 You need to transcode/re-encode (drop -c copy then). Or you can't obtain an ffmpeg
-build with rtmp+rtmps+flv+TLS — ffmpeg-kit is archived (see anti-pattern
+build with rtmp+rtmps+flv+TLS, ffmpeg-kit is archived (see anti-pattern
 archived-native-dependency-vanished); vendor a prebuilt AAR or use a maintained build.
 
 # Placeholders

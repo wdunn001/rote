@@ -16,7 +16,7 @@ git log --oneline --graph --all --decorate
 Visualize branch structure + recent commits across all refs in one screen.
 
 # When NOT to use
-Repo with 10k+ commits and 100+ branches — output gets unreadable. Filter by --since / --author / --grep.
+Repo with 10k+ commits and 100+ branches. Output gets unreadable. Filter by --since / --author / --grep.
 
 # Gotchas
 - `--all` shows ALL refs including stashes and remote-tracking branches. Drop it for current branch only.

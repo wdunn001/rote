@@ -11,12 +11,12 @@ Wrapping a third-party library so it implements YOUR interface (so you can swap 
 
 Bridging legacy code into modern interfaces.
 
-Implementing a port (Domain interface) with concrete tech (Infrastructure) — every Infrastructure adapter is the Adapter pattern.
+Implementing a port (Domain interface) with concrete tech (Infrastructure). Every Infrastructure adapter is the Adapter pattern.
 
 # When NOT to use
-The interfaces are already compatible — direct call, no wrapper.
+The interfaces are already compatible, direct call, no wrapper.
 
-You're adapting MANY methods with deep mismatch — refactor toward a custom interface instead of bridging.
+You're adapting MANY methods with deep mismatch. Refactor toward a custom interface instead of bridging.
 
 # Structure
 Adapter holds a reference to the Adaptee and implements the Target interface by translating calls.

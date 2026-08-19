@@ -17,15 +17,15 @@ You need embedding generation (nomic-embed-text) without depending on cloud.
 Acme / rote uses Ollama on edge-host for the embedding backend and as a delegate for bulk summarization.
 
 # When NOT to use
-You need frontier-model quality (Claude Opus, GPT-4, Gemini) — open weights are getting close but not equal.
+You need frontier-model quality (Claude Opus, GPT-4, Gemini). Open weights are getting close but not equal.
 
-You need very high throughput per server — sglang or vLLM are higher-throughput.
+You need very high throughput per server. Sglang or vLLM are higher-throughput.
 
-JSON-schema-constrained decoding — Ollama supports it but sglang is more reliable.
+JSON-schema-constrained decoding, Ollama supports it but sglang is more reliable.
 
 # Limitations
-- Multi-model serving on one GPU shares memory — switching models has latency.
-- Quantization changes output quality — Q4 vs Q8 matters.
+- Multi-model serving on one GPU shares memory. Switching models has latency.
+- Quantization changes output quality. Q4 vs Q8 matters.
 - Smaller models (7B) have meaningful quality gaps from frontier; benchmark before relying.
 
 # Cost

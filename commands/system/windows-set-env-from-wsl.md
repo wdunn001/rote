@@ -3,7 +3,7 @@ slug: windows-set-env-from-wsl
 name: Set Windows user / system env var from WSL via PowerShell
 family: system
 platform: wsl-from-windows
-equivalents: export FOO=bar in .bashrc (Linux); setx (Windows cmd.exe — legacy)
+equivalents: export FOO=bar in .bashrc (Linux); setx (Windows cmd.exe, legacy)
 references: about_Environment_Variables (PowerShell)
 ---
 
@@ -17,8 +17,8 @@ references: about_Environment_Variables (PowerShell)
 A Windows-side app needs a persistent env var (survives reboot). Common case: configure Ollama bind address, set proxy env vars, override default install paths for tools spawned from Windows shell.
 
 # When NOT to use
-- The env var only needs to live for one Process — use `$env:NAME = 'value'` in the same PowerShell session and launch the app from there.
-- WSL-side processes — use `~/.bashrc` or `~/.profile`.
+- The env var only needs to live for one Process. Use `$env:NAME = 'value'` in the same PowerShell session and launch the app from there.
+- WSL-side processes, use `~/.bashrc` or `~/.profile`.
 - You're inside an admin-protected environment where User env vars get reset by group policy.
 
 # Gotchas

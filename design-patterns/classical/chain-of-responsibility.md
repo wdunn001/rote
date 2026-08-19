@@ -14,11 +14,11 @@ The chain order matters and handlers know nothing of each other.
 Examples: c2_router in mz-pid-tuner (try DeviceA MQTT → fall back to WiFi-TCP → return Unreachable), ASP.NET middleware pipeline.
 
 # When NOT to use
-Exactly one handler will handle the request — use Strategy instead.
+Exactly one handler will handle the request. Use Strategy instead.
 
-The chain is short (2 handlers) — direct if/else is clearer.
+The chain is short (2 handlers). Direct if/else is clearer.
 
-Handlers need to coordinate or share state — use mediator.
+Handlers need to coordinate or share state. Use mediator.
 
 # Structure
 Handler interface declares Handle(request).  Each ConcreteHandler decides: handle it, transform-and-pass-on, or pass-on unchanged.  Last handler returns a default or raises.

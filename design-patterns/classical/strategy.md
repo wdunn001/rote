@@ -12,7 +12,7 @@ Multiple algorithms differ but share an interface.  Examples: per-firmware MAVLi
 The choice is deferred to runtime, configured per tenant, or selected by capability/feature flag rather than baked in at compile time.
 
 # When NOT to use
-Only one variant exists today and "future variants" are speculative — premature indirection.
+Only one variant exists today and "future variants" are speculative, premature indirection.
 
 The variants share so much state that you've got a parameterized algorithm, not separate strategies.  Use parameters.
 

@@ -20,12 +20,12 @@ First check on any NVIDIA-equipped box. Tells you: model, VRAM total/used/free, 
 The rote uses nvidia-smi to (1) detect that this machine has an RTX 2080 Ti before proposing local LLM hosting, (2) check VRAM headroom before deciding which model fits.
 
 # When NOT to use
-- Production monitoring at scale — use the NVIDIA DCGM exporter feeding Prometheus.
-- Non-NVIDIA GPUs (AMD, Intel, Apple Silicon) — different tools.
-- A GPU that's powered down or not enumerated — sometimes drivers need a reload (`sudo rmmod nvidia_uvm && sudo modprobe nvidia_uvm`).
+- Production monitoring at scale. Use the NVIDIA DCGM exporter feeding Prometheus.
+- Non-NVIDIA GPUs (AMD, Intel, Apple Silicon), different tools.
+- A GPU that's powered down or not enumerated. Sometimes drivers need a reload (`sudo rmmod nvidia_uvm && sudo modprobe nvidia_uvm`).
 
 # Gotchas
-- Inside WSL2, `nvidia-smi` works because the Windows-side driver is exposed via `/dev/dxg`. If `/dev/dxg` is missing, WSL GPU passthrough isn't configured — the Windows driver needs to be a recent version (>= 470 for Linux CUDA, >= 510 for full WSL features).
+- Inside WSL2, `nvidia-smi` works because the Windows-side driver is exposed via `/dev/dxg`. If `/dev/dxg` is missing, WSL GPU passthrough isn't configured. The Windows driver needs to be a recent version (>= 470 for Linux CUDA, >= 510 for full WSL features).
 - The `Driver Version` shown is the Windows driver version when running inside WSL. The `CUDA Version` shown is the MAX cuda the driver supports, not the runtime CUDA you have installed.
 - `Persistence-M` `On`/`Off`: when Off, the driver unloads + reloads between uses (slow first call). Production GPU servers run `nvidia-smi -pm 1` once at boot to keep it persistent.
 - The `Disp.A` column: `On` = this GPU drives the display. Display use eats VRAM (typically 1-6 GB depending on monitor + apps); the free column shows ACTUAL available for compute.

@@ -16,15 +16,15 @@ find . -type f -name '<pattern>' -exec <cmd> {} +
 Run a command across many matched files efficiently. Pipeline alternative is `xargs`.
 
 # When NOT to use
-Simple grep — use `grep -rE` directly.
-Very fast matching — use `fd` (rust-based, respects .gitignore, much faster).
-Files you want to delete — use `-delete` instead of `-exec rm` (faster and safer).
+Simple grep, use `grep -rE` directly.
+Very fast matching, use `fd` (rust-based, respects .gitignore, much faster).
+Files you want to delete. Use `-delete` instead of `-exec rm` (faster and safer).
 
 # Gotchas
-- `{} +` (with plus) batches matches into ONE `<cmd>` invocation per batch — much faster than `{} \;` which forks a process per file.
+- `{} +` (with plus) batches matches into ONE `<cmd>` invocation per batch, much faster than `{} \;` which forks a process per file.
 - `\;` forks a process per file. Use only when the command can take exactly one arg.
 - `-name` is case-sensitive; `-iname` for case-insensitive.
-- Watch quoting: `find . -name '*.txt'` (quoted) vs `find . -name *.txt` (shell expands glob first — often wrong).
+- Watch quoting: `find . -name '*.txt'` (quoted) vs `find . -name *.txt` (shell expands glob first, often wrong).
 - For binary-vs-text decisions, pipe to grep -I.
 
 # Flags

@@ -14,9 +14,9 @@ You want a clean boundary between presentation (controllers) and domain.
 Multiple delivery channels (web, CLI, worker) call the same use case.
 
 # When NOT to use
-Services become a dumping ground of unrelated methods on a god-class — split by use case.
+Services become a dumping ground of unrelated methods on a god-class. Split by use case.
 
-The service has zero orchestration (just delegates to one repo call) — call the repo directly.
+The service has zero orchestration (just delegates to one repo call). Call the repo directly.
 
 # Structure
 AppService classes named by use case domain (DroneCommandAppService, DeviceIngestionAppService).  Methods take DTOs, return DTOs.  Inside: load aggregate → mutate → save → publish event.

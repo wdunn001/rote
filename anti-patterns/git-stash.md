@@ -2,7 +2,7 @@
 slug: git-stash
 title: git stash silently loses work
 hit_count: 5
-token_cost: critical — entire feature implementations have vanished into stashes that were never recovered
+token_cost: critical, entire feature implementations have vanished into stashes that were never recovered
 ---
 
 # Symptom
@@ -11,7 +11,7 @@ Claude (or the user) runs `git stash` to clear a working tree before some operat
 
 # Root cause
 
-`git stash` is intentionally ephemeral and easy to miss. There's no UI for "you have stashes". Across submodules, each submodule has its own stash list. WSL + Windows-mounted repos compound this — stashes on one mount can be invisible from another shell.
+`git stash` is intentionally ephemeral and easy to miss. There's no UI for "you have stashes". Across submodules, each submodule has its own stash list. WSL + Windows-mounted repos compound this, stashes on one mount can be invisible from another shell.
 
 # Remedy
 

@@ -16,7 +16,7 @@ You can roll back gracefully on rejection (no destructive side effects already t
 # When NOT to use
 The action has irreversible side effects from the user's perspective (sending money, sending a message visible to others).
 
-The conflict rate is high — users see flickering reverts.
+The conflict rate is high. Users see flickering reverts.
 
 # Structure
 Mutation fires; UI updates immediately.  Server call happens in the background.  On server success: confirm.  On server failure: roll back + surface the error.  Often paired with TanStack Query's onMutate.

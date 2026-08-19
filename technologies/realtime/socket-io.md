@@ -8,21 +8,21 @@ references: https://socket.io/
 ---
 
 # When to use
-Node.js backend with realtime needs — Socket.IO is the de facto standard.
+Node.js backend with realtime needs. Socket.IO is the de facto standard.
 
 You want WebSocket + automatic fallback (long polling) for compatibility with old proxies / corporate networks.
 
 You want room-based broadcast, ack callbacks, namespace isolation.
 
 # When NOT to use
-You're on .NET — SignalR is the local equivalent.
+You're on .NET. SignalR is the local equivalent.
 
-You can stick to raw WebSockets — less framework lock-in.
+You can stick to raw WebSockets, less framework lock-in.
 
-Browser-only — and the long-polling fallback isn't needed — it's overhead.
+Browser-only, and the long-polling fallback isn't needed. It's overhead.
 
 # Limitations
-- Socket.IO protocol is NOT just WebSockets — clients and servers must speak Socket.IO specifically.
+- Socket.IO protocol is NOT just WebSockets. Clients and servers must speak Socket.IO specifically.
 - Scale-out requires a Redis adapter (or similar).
 - v3/v4 protocol changes have caused upgrade pain.
 

@@ -16,8 +16,8 @@ journalctl -u <unit> -f --since '5m ago'
 Tail / search logs of a systemd-managed service. Replaces tailing `/var/log/<unit>.log`.
 
 # When NOT to use
-Containers — those use the docker log driver. Get them via `docker logs` or the configured driver's destination.
-Application-level structured logs you want to grep semantically — pipe through `jq` for JSON or use Loki/ELK.
+Containers, those use the docker log driver. Get them via `docker logs` or the configured driver's destination.
+Application-level structured logs you want to grep semantically. Pipe through `jq` for JSON or use Loki/ELK.
 
 # Gotchas
 - Without `-u`, you see EVERYTHING. Always scope.

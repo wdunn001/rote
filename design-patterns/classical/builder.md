@@ -14,9 +14,9 @@ Construction is multi-step with validation between steps (validate auth, then co
 The same construction process should produce different output forms (a SQL query as text vs an AST).
 
 # When NOT to use
-Object has 3-4 fields — just use a constructor or record literal.
+Object has 3-4 fields. Just use a constructor or record literal.
 
-Validation can happen in the constructor — adding a builder is ceremony.
+Validation can happen in the constructor. Adding a builder is ceremony.
 
 # Structure
 Builder holds intermediate state; setters return self for fluent chaining; build() validates + emits the final object.

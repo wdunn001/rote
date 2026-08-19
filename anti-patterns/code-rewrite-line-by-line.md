@@ -2,7 +2,7 @@
 slug: code-rewrite-line-by-line
 title: Copying code or doing find/replace by Read-then-Write-line-by-line instead of using generic tools
 hit_count: 4
-token_cost: high — each line costs Edit/Write tokens, multi-file ops compound, and the result is fragile to the line-numbers being slightly off
+token_cost: high, each line costs Edit/Write tokens, multi-file ops compound, and the result is fragile to the line-numbers being slightly off
 ---
 
 # Symptom
@@ -54,5 +54,5 @@ Greppable smell in your tool history: 5+ `Edit` calls within one turn, all on th
 
 # See also
 
-- [[rote]] skill — the generic shell tools live there
-- [[tmp-script-one-shot]] anti-pattern — its sibling failure mode
+- [[rote]] skill, the generic shell tools live there
+- [[tmp-script-one-shot]] anti-pattern, its sibling failure mode

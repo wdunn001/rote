@@ -18,9 +18,9 @@ references: https://stedolan.github.io/jq/manual/
 Parse / filter / reshape JSON on the command line. The rote's CLI uses jq throughout.
 
 # When NOT to use
-YAML — use `yq` (jq-syntax-compatible).
-Deeply complex transformations — use a real script (Python, JS).
-XML — use `xmlstarlet`.
+YAML, use `yq` (jq-syntax-compatible).
+Deeply complex transformations, use a real script (Python, JS).
+XML, use `xmlstarlet`.
 
 # Gotchas
 - `-r` / `--raw-output` strips JSON quoting on STRING output. Without it `jq '.name'` returns `"foo"`; with `-r` returns `foo`.

@@ -9,10 +9,10 @@ references: https://learn.microsoft.com/windows/wsl/networking
 
 # Command
 ```sh
-# Default route gateway -— the Windows host's WSL-bridge IP
+# Default route gateway, the Windows host's WSL-bridge IP
 ip route show | awk '/^default/ {print $3}'
 
-# Nameserver from /etc/resolv.conf -— sometimes same, sometimes the DNS resolver
+# Nameserver from /etc/resolv.conf, sometimes same, sometimes the DNS resolver
 grep nameserver /etc/resolv.conf | awk '{print $2}' | head -1
 
 # Windows hostname (from cmd.exe)
@@ -20,22 +20,22 @@ grep nameserver /etc/resolv.conf | awk '{print $2}' | head -1
 ```
 
 # When to use
-You need to reach a Windows-side service from WSL but `localhost:PORT` doesn't work — usually because WSL2 localhost forwarding doesn't cover services bound to `127.0.0.1` only.
+You need to reach a Windows-side service from WSL but `localhost:PORT` doesn't work, usually because WSL2 localhost forwarding doesn't cover services bound to `127.0.0.1` only.
 
 # When NOT to use
-- `localhost:PORT` already works — don't add complexity.
-- Windows 11 22H2+ with mirrored networking enabled — localhost IS the Windows localhost there; this whole problem class disappears.
-- You're on native Linux — the "host" concept doesn't apply.
+- `localhost:PORT` already works. Don't add complexity.
+- Windows 11 22H2+ with mirrored networking enabled. Localhost IS the Windows localhost there; this whole problem class disappears.
+- You're on native Linux. The "host" concept doesn't apply.
 
 # Gotchas
 - The default-route gateway IP is the WSL bridge's Windows side. This works for services bound to `0.0.0.0` on Windows. Services bound to `127.0.0.1` only are NOT reachable here regardless of firewall.
 - `/etc/resolv.conf` nameserver in classic WSL2 networking points to the WSL DNS resolver (also a virtual IP), not the Windows host. Different IP from the gateway. The gateway is what you usually want for HTTP traffic.
-- These IPs are EPHEMERAL across WSL restarts — don't hardcode them. Always discover at runtime.
-- Mirrored networking mode (`networkingMode=mirrored` in `.wslconfig`) makes WSL share the Windows network stack — `localhost` works for everything. But also means no separate bridge IP exists.
+- These IPs are EPHEMERAL across WSL restarts. Don't hardcode them. Always discover at runtime.
+- Mirrored networking mode (`networkingMode=mirrored` in `.wslconfig`) makes WSL share the Windows network stack. `localhost` works for everything. But also means no separate bridge IP exists.
 - Windows hostname via `.local` mDNS (e.g. `DESKTOP-XXX.local`) usually doesn't resolve from WSL because Avahi/mDNS isn't running. Don't rely on it.
 
 # Flags
-N/A — these are read-only discovery commands.
+N/A, these are read-only discovery commands.
 
 # Examples
 - Discover-then-use pattern:
@@ -54,8 +54,8 @@ N/A — these are read-only discovery commands.
 - Check if mirrored networking is on (no gateway = mirrored):
   ```sh
   if ip route show | grep -q '^default'; then
-      echo "classic WSL2 networking — gateway IP available"
+      echo "classic WSL2 networking, gateway IP available"
   else
-      echo "likely mirrored networking — localhost should reach Windows directly"
+      echo "likely mirrored networking. Localhost should reach Windows directly"
   fi
   ```

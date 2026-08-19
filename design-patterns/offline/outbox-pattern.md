@@ -16,7 +16,7 @@ Offline-first systems: messages queue locally and flush when connectivity return
 # When NOT to use
 Fire-and-forget that doesn't matter if lost (analytics ping).
 
-You can use a transactional log feature directly (PostgreSQL logical replication, change-data-capture) — that's the outbox built-in.
+You can use a transactional log feature directly (PostgreSQL logical replication, change-data-capture). That's the outbox built-in.
 
 # Structure
 Application writes business state + an Outbox row in the same DB transaction.  A separate poller / CDC subscriber reads Outbox, publishes to the wire, marks rows as sent.  At-least-once: subscribers must be idempotent.

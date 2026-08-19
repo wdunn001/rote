@@ -2,7 +2,7 @@
 slug: command
 name: Command
 category: classical
-intent: Encapsulate a request as an object — parameters, receiver, action — so it can be queued, logged, undone, replayed
+intent: Encapsulate a request as an object (parameters, receiver, action) so it can be queued, logged, undone, replayed
 references: GoF Command
 ---
 
@@ -16,9 +16,9 @@ You want to send operations over a wire (a wire format = serialized commands).
 Examples: DroneCommand discriminated-union in mz packages, CoT activity tracker, replay-able CQRS commands.
 
 # When NOT to use
-Operations are synchronous, never persisted, never undone — direct method calls are simpler.
+Operations are synchronous, never persisted, never undone. Direct method calls are simpler.
 
-You're using Command as a fancy lambda — just use a lambda.
+You're using Command as a fancy lambda. Just use a lambda.
 
 # Structure
 Command interface declares Execute().  Concrete commands hold all parameters + reference to receiver.  Invoker triggers execute (synchronously or queued).

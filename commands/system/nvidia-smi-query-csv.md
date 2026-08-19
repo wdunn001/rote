@@ -14,15 +14,15 @@ nvidia-smi --query-compute-apps=<fields> --format=csv[,noheader]
 ```
 
 # When to use
-Scripted GPU state — feed VRAM/temp/util into monitoring, conditional logic, or a delegate-registry health check.
+Scripted GPU state, feed VRAM/temp/util into monitoring, conditional logic, or a delegate-registry health check.
 
 # When NOT to use
-- Human inspection — the plain `nvidia-smi` table is more readable.
-- Sub-second polling — nvidia-smi's startup is ~50ms; consider DCGM for high-frequency.
+- Human inspection, the plain `nvidia-smi` table is more readable.
+- Sub-second polling, nvidia-smi's startup is ~50ms; consider DCGM for high-frequency.
 
 # Gotchas
-- `--format=csv,noheader` strips the header row — handy for piping to other tools.
-- `--format=csv,nounits` strips ` MiB`, ` %`, ` C` etc. suffixes — needed when piping to `awk` / `bc` for arithmetic.
+- `--format=csv,noheader` strips the header row, handy for piping to other tools.
+- `--format=csv,nounits` strips ` MiB`, ` %`, ` C` etc. suffixes, needed when piping to `awk` / `bc` for arithmetic.
 - `--query-compute-apps` shows PROCESSES using the GPU. The rote uses this to verify "is anything actually loaded onto the GPU right now?" before estimating free VRAM.
 - Some fields require root or specific permissions (e.g. `--query-supported-clocks`).
 

@@ -13,11 +13,11 @@ rsync -avzP --delete <src>/ <user>@<host>:<dest>/
 ```
 
 # When to use
-Incremental file sync between two locations — across SSH or locally. The `-a` flag set handles 99% of legit use cases.
+Incremental file sync between two locations, across SSH or locally. The `-a` flag set handles 99% of legit use cases.
 
 # When NOT to use
-Need versioning / snapshots — use Restic, borg, btrfs send/receive.
-Massive small-file syncs over high-latency links — `rsync` is single-threaded; consider `rclone` with `--transfers N`.
+Need versioning / snapshots. Use Restic, borg, btrfs send/receive.
+Massive small-file syncs over high-latency links. `rsync` is single-threaded; consider `rclone` with `--transfers N`.
 
 # Gotchas
 - TRAILING SLASH ON SOURCE MATTERS. `rsync src/ dest` copies the CONTENTS of src into dest. `rsync src dest` copies src as a SUBDIRECTORY of dest. The classic foot-gun.

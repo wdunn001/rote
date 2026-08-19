@@ -16,8 +16,8 @@ ssh -L <local-port>:<remote-host>:<remote-port> <user>@<gateway>
 Reach a service on the SSH server's network from your local machine. Connect to a remote DB from local psql; expose a edge-host service to a local browser; reach a service behind a corporate jumpbox.
 
 # When NOT to use
-You want OTHERS to reach a service on your machine — use `-R` (remote forward) instead.
-Production proxying — use a real load balancer / proxy / VPN.
+You want OTHERS to reach a service on your machine. Use `-R` (remote forward) instead.
+Production proxying, use a real load balancer / proxy / VPN.
 
 # Gotchas
 - The tunnel is gone when the SSH session ends. For long-running, use `autossh` or `systemd-as-a-service`.

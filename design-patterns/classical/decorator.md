@@ -14,7 +14,7 @@ The wrapped object shouldn't know it's being decorated (the wrapper preserves th
 Examples: HttpClient handlers in .NET, middleware in web frameworks, Polly policy wrappers.
 
 # When NOT to use
-Behaviors are static and known at design time — use inheritance or direct composition.
+Behaviors are static and known at design time. Use inheritance or direct composition.
 
 The decorator changes the interface (now it's an adapter, not a decorator).
 
@@ -23,7 +23,7 @@ Decorator implements the same interface as the wrapped Component; holds a refere
 
 # Example
 ```csharp
-// HttpClient handler chain — each handler decorates the next.
+// HttpClient handler chain, each handler decorates the next.
 services.AddHttpClient<IFooClient, FooClient>()
     .AddHttpMessageHandler<RetryHandler>()
     .AddHttpMessageHandler<CircuitBreakerHandler>()

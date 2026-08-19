@@ -16,12 +16,12 @@ pip install --no-cache-dir -r requirements.txt
 Install pinned Python dependencies in a venv from a requirements file.
 
 # When NOT to use
-Multi-package management with lockfile semantics — use `pip-compile` + `pip-sync`, Poetry, uv, or pdm. Reproducible installs across machines — use `requirements.txt` produced by `pip freeze` or `pip-compile` with HASH pinning.
+Multi-package management with lockfile semantics. Use `pip-compile` + `pip-sync`, Poetry, uv, or pdm. Reproducible installs across machines. Use `requirements.txt` produced by `pip freeze` or `pip-compile` with HASH pinning.
 
 # Gotchas
 - `--no-cache-dir` is recommended inside Docker; otherwise the cache stays in the image layer wasting space.
 - pip resolves the FIRST requirement and works downward; conflicting requirements may pick wrong versions silently. Use `pip check` after install.
-- Don't `pip install` system-wide on managed systems (Debian PEP 668 marks them externally-managed — requires `--break-system-packages` or a venv).
+- Don't `pip install` system-wide on managed systems (Debian PEP 668 marks them externally-managed, requires `--break-system-packages` or a venv).
 - Use `python -m pip` instead of bare `pip` to avoid PATH ambiguity in scripts.
 
 # Flags

@@ -1,11 +1,11 @@
 # Registering the rote MCP server with MetaMCP (edge-host)
 
-MetaMCP on edge-host aggregates downstream MCP servers and presents them as a single endpoint that any MCP-aware LLM can connect to. Registering the rote MCP server with MetaMCP is how every LLM going through MetaMCP — including local LLMs on edge-host itself — inherits the rote's discovery, vault, and delegate tools without per-client config.
+MetaMCP on edge-host aggregates downstream MCP servers and presents them as a single endpoint that any MCP-aware LLM can connect to. Registering the rote MCP server with MetaMCP is how every LLM going through MetaMCP, including local LLMs on edge-host itself, inherits the rote's discovery, vault, and delegate tools without per-client config.
 
 ## Current state (2026-06-03)
 
 - MetaMCP: `http://edge-host:12008` (edge-host), auth via `METAMCP_API_KEY` (in the local vault).
-- Known endpoint: `openwebui-api` — the namespace OpenWebUI connects through.
+- Known endpoint: `openwebui-api`, the namespace OpenWebUI connects through.
 - Rote backend: lives on the WSL box (`127.0.0.1:5572`). The rote MCP server (`mcp-server/start.sh`) wraps it.
 
 ## The architectural choice
@@ -39,7 +39,7 @@ The exclude list keeps the venv (rebuilt on edge-host) + secrets + state local. 
 
 ### 2. Populate edge-host's vault with whatever secrets it needs
 
-The edge-host instance is now a separate context. If the LLMs on edge-host will dispatch to MetaMCP they need `METAMCP_API_KEY`, etc. The user adds these out-of-band by editing `/home/edge-host/rote/secret-vault/secrets.json` directly (file mode 0600 on edge-host's ext4 — actually enforced).
+The edge-host instance is now a separate context. If the LLMs on edge-host will dispatch to MetaMCP they need `METAMCP_API_KEY`, etc. The user adds these out-of-band by editing `/home/edge-host/rote/secret-vault/secrets.json` directly (file mode 0600 on edge-host's ext4, actually enforced).
 
 ### 3. Bootstrap on edge-host
 
@@ -103,11 +103,11 @@ Now there are two rote instances (one on WSL, one on edge-host). The bash script
 
 | Per-instance state | Sync strategy |
 |---|---|
-| `server/data/audit.sqlite` | None — each instance owns its own log. Optional: periodic merge if you want one unified view. |
-| `secret-vault/secrets.json` | None — each instance trusts its own host. Don't sync. |
+| `server/data/audit.sqlite` | None, each instance owns its own log. Optional: periodic merge if you want one unified view. |
+| `secret-vault/secrets.json` | None, each instance trusts its own host. Don't sync. |
 | `delegations log` | Per-instance, so calibration runs against the WSL backend show in WSL stats, edge-host-side runs show in edge-host stats. |
 | Custom scripts the user adds | `git push` from one + `git pull` on the other. |
-| Anti-patterns added during a session | Same — both `chronicle add-anti-pattern` calls flow to `git add` + `git push`. |
+| Anti-patterns added during a session | Same. Both `chronicle add-anti-pattern` calls flow to `git add` + `git push`. |
 
 The "two instances, one source of truth" pattern is intentional. Anything that should be shared lives in git. Anything that's local context (audit, vault, log) stays local.
 
@@ -118,7 +118,7 @@ If the LLMs you're using are exclusively MCP-aware clients on the WSL host (Clau
 ## Troubleshooting
 
 **`dispatch-to-metamcp.sh` returns "Server not initialized":**
-- MetaMCP requires the MCP `initialize` handshake before `tools/call`. The dispatcher already does this — if you see this error it usually means MetaMCP's namespace was attached but the subprocess hasn't been warmed yet. Make a `list_scripts` call to warm it.
+- MetaMCP requires the MCP `initialize` handshake before `tools/call`. The dispatcher already does this. If you see this error it usually means MetaMCP's namespace was attached but the subprocess hasn't been warmed yet. Make a `list_scripts` call to warm it.
 
 **MetaMCP subprocess crashes on first dispatch:**
 - Check MetaMCP's logs (`docker logs metamcp --tail 50`) for the actual error.

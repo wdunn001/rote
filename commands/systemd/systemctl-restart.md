@@ -19,13 +19,13 @@ systemctl daemon-reload          # after editing a unit file
 Manage systemd services on a Linux host (the vast majority of modern distros).
 
 # When NOT to use
-Container-runtime processes — docker/podman manage those.
-User-session services — use `systemctl --user <verb>`.
+Container-runtime processes, docker/podman manage those.
+User-session services, use `systemctl --user <verb>`.
 
 # Gotchas
 - After editing a unit file at `/etc/systemd/system/<unit>.service`, you MUST `systemctl daemon-reload` before `restart`, otherwise the old definition is still loaded.
 - `enable` makes it start at boot; `start` makes it run now. `enable --now` does both.
-- `restart` is NOT a graceful reload — it kills + restarts. For nginx-style reload: `systemctl reload <unit>` (only if the unit defines ExecReload).
+- `restart` is NOT a graceful reload. It kills + restarts. For nginx-style reload: `systemctl reload <unit>` (only if the unit defines ExecReload).
 - `journalctl -u <unit> -f` is the standard way to follow a service's logs.
 
 # Flags

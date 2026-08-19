@@ -17,11 +17,11 @@ git restore <file>            # discard working-tree changes
 Unstage a file you accidentally `git add`'d. Or discard uncommitted changes in working dir.
 
 # When NOT to use
-Already-pushed changes — use `git revert <sha>` (creates an inverse commit).
-Stashed changes — `git stash` and friends (which we DON'T use; see `git-stash` anti-pattern — use WIP commits instead).
+Already-pushed changes, use `git revert <sha>` (creates an inverse commit).
+Stashed changes, `git stash` and friends (which we DON'T use; see `git-stash` anti-pattern. Use WIP commits instead).
 
 # Gotchas
-- `git restore <file>` IS DESTRUCTIVE — your uncommitted changes in that file are gone. No reflog, no recovery.
+- `git restore <file>` IS DESTRUCTIVE, your uncommitted changes in that file are gone. No reflog, no recovery.
 - `git restore --staged <file>` only unstages; the working dir copy is untouched.
 - Without `--staged` or `--worktree`, defaults to `--worktree` (i.e. destroys uncommitted changes).
 - For 'undo last commit but keep changes': `git reset --soft HEAD~1`. Not `git restore`.

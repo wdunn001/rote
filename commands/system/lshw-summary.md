@@ -19,9 +19,9 @@ sudo lshw -json | jq ...               # machine-readable
 You want a single tool that enumerates ALL hardware (CPU, memory, disks, NICs, GPUs, USB, PCI) on a Linux host.
 
 # When NOT to use
-- Quick check for ONE thing — `lspci`, `lsblk`, `lscpu`, `lsusb`, `free -h` are faster.
-- Inside WSL — most hardware is bridged via Windows, so `lshw` returns sparse info. Use `wmic` against the Windows host instead.
-- Container with restricted privileges — needs `sudo` AND access to `/sys` + `/proc`.
+- Quick check for ONE thing, `lspci`, `lsblk`, `lscpu`, `lsusb`, `free -h` are faster.
+- Inside WSL, most hardware is bridged via Windows, so `lshw` returns sparse info. Use `wmic` against the Windows host instead.
+- Container with restricted privileges, needs `sudo` AND access to `/sys` + `/proc`.
 
 # Gotchas
 - Needs root for full output. Without root: omits serial numbers, hardware vendor names, some firmware details.

@@ -17,17 +17,17 @@ disown
 Start a long-running command from a shell, then log out without killing it.
 
 # When NOT to use
-Production daemons — use systemd / supervisord / a process manager. nohup is for ad-hoc.
-Needing to attach back later — use `tmux` or `screen`.
+Production daemons, use systemd / supervisord / a process manager. nohup is for ad-hoc.
+Needing to attach back later. Use `tmux` or `screen`.
 
 # Gotchas
 - WITHOUT `</dev/null`, the process inherits your terminal's stdin and can hang on read attempts.
-- WITHOUT `> <log> 2>&1`, output goes to `nohup.out` in the current dir — surprise file.
+- WITHOUT `> <log> 2>&1`, output goes to `nohup.out` in the current dir, surprise file.
 - `disown` removes the job from the shell's job table so the shell won't send SIGHUP on exit (nohup blocks SIGHUP via the syscall but jobs-table state can still confuse).
 - The combination `nohup ... &` + `disown` is belt + suspenders. Either alone usually works; both together always works.
 
 # Flags
-nohup: no flags worth knowing — it just sets up the signal handler and execs.
+nohup: no flags worth knowing. It just sets up the signal handler and execs.
 
 disown:
 - `-h`: don't remove from job table, just mark to not receive HUP

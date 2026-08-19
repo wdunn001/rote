@@ -2,7 +2,7 @@
 slug: llm-writes-secrets-into-env
 title: LLM writes private keys / API secrets into .env via Write tool
 hit_count: 3
-token_cost: high — secrets enter LLM context, get logged in transcripts, may end up in training/reasoning traces
+token_cost: high, secrets enter LLM context, get logged in transcripts, may end up in training/reasoning traces
 ---
 
 # Symptom
@@ -19,7 +19,7 @@ Use the rote `inject-env-secrets.sh` script. It calls the local API's `POST /vau
 
 1. Reads the named secrets from `/path/to/rote/secret-vault/secrets.json` server-side
 2. Writes them directly into the target `.env` inside an idempotent block label
-3. Returns to Claude only key NAMES + byte counts — never values
+3. Returns to Claude only key NAMES + byte counts, never values
 
 ```bash
 /path/to/rote/scripts/inject-env-secrets.sh \

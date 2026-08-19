@@ -16,12 +16,12 @@ ssh-copy-id [-i ~/.ssh/<key>.pub] <user>@<host>
 First-time setup of password-less SSH to a new host.
 
 # When NOT to use
-Host has password auth disabled — you need an alternative way to land the key (console, infra-as-code, snapshot, etc.).
+Host has password auth disabled. You need an alternative way to land the key (console, infra-as-code, snapshot, etc.).
 
 # Gotchas
-- The first time, you'll be prompted for the password (that's the point — it uses password auth to install the key, then future logins use the key).
+- The first time, you'll be prompted for the password (that's the point. It uses password auth to install the key, then future logins use the key).
 - Picks the default key (`~/.ssh/id_rsa.pub` or `id_ed25519.pub`). Use `-i` to be explicit.
-- Idempotent — re-running won't duplicate entries.
+- Idempotent, re-running won't duplicate entries.
 - If your shell on the remote is weird (no bash, custom prompt), `ssh-copy-id` may fail silently. Manually: `cat ~/.ssh/id_ed25519.pub | ssh user@host 'cat >> ~/.ssh/authorized_keys'`.
 
 # Flags

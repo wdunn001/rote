@@ -14,7 +14,7 @@ State that the runtime ALREADY enforces as single-instance (a database connectio
 # When NOT to use
 DON'T use as a global-variable disguise.  Most "Singleton" classes in training-data code are global mutable state with extra ceremony.  The cost: untestable code, hidden coupling, race conditions, lifecycle that can't be controlled per test.
 
-DON'T use for "just one of these for now" — use dependency injection.  The constructor takes the resource, the composition root wires it once.  You get one instance without the global access path.
+DON'T use for "just one of these for now". Use dependency injection.  The constructor takes the resource, the composition root wires it once.  You get one instance without the global access path.
 
 # Structure
 Private constructor + static instance + lazy initializer.  Modern variants use Lazy<T> (.NET), lazy_static / OnceCell (Rust), or a module-level instance (Python).  In Python the cleanest form is just a module-level variable initialized at import time.

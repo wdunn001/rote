@@ -13,7 +13,7 @@ ssh-keygen -t ed25519 -C '<email-or-label>'
 ```
 
 # When to use
-Generating a new SSH keypair. Default to ed25519 — small, fast, secure.
+Generating a new SSH keypair. Default to ed25519, small, fast, secure.
 
 # When NOT to use
 Target system doesn't support ed25519 (very old OpenSSH < 6.5). Fall back to `-t rsa -b 4096`.
@@ -21,7 +21,7 @@ Target system doesn't support ed25519 (very old OpenSSH < 6.5). Fall back to `-t
 # Gotchas
 - USE A PASSPHRASE. Without one, anyone with the file owns the key.
 - Default output: `~/.ssh/id_ed25519` (private) + `~/.ssh/id_ed25519.pub` (public). Don't share the private file.
-- The `-C` comment is just a label — typically your email or 'work-laptop'. Helps you identify keys later.
+- The `-C` comment is just a label, typically your email or 'work-laptop'. Helps you identify keys later.
 - For automation (CI keys), use a SEPARATE key with no passphrase, install it via secrets management, and restrict it via `authorized_keys` options (`command=...`, `restrict`).
 
 # Flags
@@ -29,7 +29,7 @@ Target system doesn't support ed25519 (very old OpenSSH < 6.5). Fall back to `-t
 - `-b <bits>`: key size (for RSA: 4096)
 - `-C <comment>`: human label
 - `-f <path>`: output path (default ~/.ssh/id_<type>)
-- `-N <passphrase>`: passphrase non-interactively (CAREFUL — visible in shell history)
+- `-N <passphrase>`: passphrase non-interactively (CAREFUL, visible in shell history)
 - `-a <rounds>`: KDF rounds (more = slower to brute-force)
 
 # Examples

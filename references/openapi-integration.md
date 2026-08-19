@@ -1,4 +1,4 @@
-# OpenAPI integration — use the rote from any function-calling LLM
+# OpenAPI integration, use the rote from any function-calling LLM
 
 The FastAPI server auto-generates an OpenAPI 3.1 spec at:
 
@@ -12,7 +12,7 @@ and a Swagger UI at `http://127.0.0.1:5572/docs`. Every function-calling LLM eco
 
 Three things, depending on the runtime:
 
-1. **System prompt** describing when to use the tools (use the `rote` skill's text — `~/.claude/skills/rote/SKILL.md`).
+1. **System prompt** describing when to use the tools (use the `rote` skill's text, `~/.claude/skills/rote/SKILL.md`).
 2. **Tool definitions** derived from the OpenAPI spec.
 3. **A relay**: code that, when the LLM emits a tool call, makes the matching HTTP request and feeds the response back.
 
@@ -120,7 +120,7 @@ resp = client.messages.create(
 
 ## Gemini / Google AI
 
-Same pattern — Gemini's `FunctionDeclaration` shape matches the OpenAPI parameter object 1:1.
+Same pattern, Gemini's `FunctionDeclaration` shape matches the OpenAPI parameter object 1:1.
 
 ## Local Ollama / sglang with function calling
 

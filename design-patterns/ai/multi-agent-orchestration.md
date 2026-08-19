@@ -11,16 +11,16 @@ The task naturally decomposes: research → write → review.  Each step has dif
 
 Independent work-items can run in parallel (review 5 files concurrently, each by a separate agent).
 
-Context budgets are tight — splitting protects the main agent's context window.
+Context budgets are tight. Splitting protects the main agent's context window.
 
 Adversarial verification: one agent generates, another verifies independently.
 
 # When NOT to use
-The task is genuinely sequential and small — multi-agent is overhead.
+The task is genuinely sequential and small. Multi-agent is overhead.
 
-Coordination cost exceeds the benefit — every additional agent is a context window + LLM call.
+Coordination cost exceeds the benefit. Every additional agent is a context window + LLM call.
 
-You're using agents for things one agent does better — many tasks benefit from one coherent mind.
+You're using agents for things one agent does better. Many tasks benefit from one coherent mind.
 
 # Structure
 Orchestrator agent (the main loop) spawns specialist agents.  Specialists work in parallel.  Results are aggregated.  Optional adversarial: one writes, another critiques.  Tools: Anthropic subagents, LangGraph, CrewAI, custom workflows.

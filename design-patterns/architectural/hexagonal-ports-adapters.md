@@ -14,9 +14,9 @@ You want tests that swap out infra for fakes without rewriting the application.
 You want the freedom to swap one provider for another (AWS S3 → Azure Blob) without rewriting business code.
 
 # When NOT to use
-The 'core' is genuinely glue code over one provider — adding ports just adds indirection.
+The 'core' is genuinely glue code over one provider. Adding ports just adds indirection.
 
-Adapters are shipped as the canonical thing (no expectation of swapping) — the port becomes a noise interface.
+Adapters are shipped as the canonical thing (no expectation of swapping). The port becomes a noise interface.
 
 # Structure
 Application core defines PORTS (Domain or Application interfaces: IEmailSender, IClock, IDroneRepository).  ADAPTERS implement ports against concrete tech.  Composition root wires the adapters.  Tests substitute fakes.
