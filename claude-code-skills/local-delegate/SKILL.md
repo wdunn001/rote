@@ -1,9 +1,9 @@
 ---
 name: local-delegate
-description: Use this when you're about to do bulk token work — summarization, log-skimming, doc reading, classification, embedding generation, or any operation whose answer doesn't require Claude's reasoning. Check the Rote delegate registry FIRST (`rote delegate best <capability>`) and defer to a known-capable local resource (local LLM on the .88 box, MetaMCP server, SSH-reachable compute) instead of doing it in-Claude. Always LOG the outcome so future-Claude can decide if this delegate is worth using for this capability.
+description: Use this when you're about to do bulk token work, summarization, log-skimming, doc reading, classification, embedding generation, or any operation whose answer doesn't require Claude's reasoning. Check the Rote delegate registry FIRST (`rote delegate best <capability>`) and defer to a known-capable local resource (local LLM on the .88 box, MetaMCP server, SSH-reachable compute) instead of doing it in-Claude. Always LOG the outcome so future-Claude can decide if this delegate is worth using for this capability.
 ---
 
-# Local Delegate — Defer + Track Skill
+# Local Delegate, Defer + Track Skill
 
 There is a local registry of non-Claude compute resources at `/path/to/rote/` (the same backend as [[rote]]). Each `delegate` row says: how to reach it, what it claims to do, what it has actually succeeded at. Before doing expensive work in Claude's own context, check whether a delegate has a proven track record on this capability and defer to it if so.
 
@@ -55,7 +55,7 @@ These are the names to use when calling `rote delegate best <capability>` and `.
 | `shell-exec-bulk`           | Run a shell pipeline on remote compute (SSH delegate)      |
 | `transcoding`               | Audio/video transcode (where remote box has GPU/codecs)    |
 
-If you're about to do something not on this list, **add the capability to the relevant delegate's `capabilities`** AND log the outcome — that's how the taxonomy grows.
+If you're about to do something not on this list, **add the capability to the relevant delegate's `capabilities`** AND log the outcome. That's how the taxonomy grows.
 
 ## API surface
 
@@ -107,14 +107,14 @@ rote delegate log edge-host-ssh-host shell-exec-bulk success \
 
 ### Recording outcomes (mandatory)
 
-EVERY delegation gets logged — success or failure. Even refusals (delegate up but returned "I don't know" / blocked content). The stats are only useful if they're honest.
+EVERY delegation gets logged, success or failure. Even refusals (delegate up but returned "I don't know" / blocked content). The stats are only useful if they're honest.
 
-- `success` — delegate produced a usable answer; you used it
-- `partial` — delegate produced something useful but you had to follow up in-Claude
-- `failure` — delegate gave a wrong answer, hallucinated, or returned garbage
-- `refused` — delegate refused, errored, or timed out
+- `success`, delegate produced a usable answer; you used it
+- `partial`, delegate produced something useful but you had to follow up in-Claude
+- `failure`, delegate gave a wrong answer, hallucinated, or returned garbage
+- `refused`, delegate refused, errored, or timed out
 
-Be honest about `failure` — that's exactly the data future-Claude needs to STOP deferring this capability.
+Be honest about `failure`. That's exactly the data future-Claude needs to STOP deferring this capability.
 
 ## Adding a new delegate
 
@@ -145,8 +145,8 @@ rote delegate enable local-llm
 
 ## Cross-reference
 
-- [[rote]] — sibling skill for reusable scripts
-- [[secret-handling]] — if a delegate needs a credential, ALWAYS via vault, never inline
+- [[rote]], sibling skill for reusable scripts
+- [[secret-handling]], if a delegate needs a credential, ALWAYS via vault, never inline
 - See anti-pattern `delegate-not-consulted` for the failure mode this skill prevents
 - See `/path/to/rote/server/README.md` for the full API surface
 

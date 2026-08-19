@@ -19,8 +19,8 @@ tmux ls                  # list sessions
 Long-running processes you want to leave running on a remote box; multi-pane terminal layouts; collaborative shell sessions.
 
 # When NOT to use
-Single short command — use `nohup` + `&`.
-Production services — use systemd.
+Single short command, use `nohup` + `&`.
+Production services, use systemd.
 
 # Gotchas
 - The prefix key is `Ctrl-b` by default. Most people remap to `Ctrl-a` (more ergonomic) in `~/.tmux.conf`.

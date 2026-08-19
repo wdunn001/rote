@@ -14,7 +14,7 @@ npm install   # dev / mutating
 ```
 
 # When to use
-CI, Docker builds, reproducible installs — `npm ci`. Local dev where you ARE changing package.json — `npm install`.
+CI, Docker builds, reproducible installs, `npm ci`. Local dev where you ARE changing package.json, `npm install`.
 
 # When NOT to use
 Don't `npm install` in CI: it can mutate package-lock.json silently and the resulting builds aren't reproducible.

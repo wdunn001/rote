@@ -9,14 +9,14 @@ references: GoF Factory Method
 # When to use
 You know you need 'an X' but the concrete X depends on runtime context: which DB driver, which protocol parser, which firmware commander.
 
-Constructor signatures across the variants diverge — factory hides the differences behind a uniform call.
+Constructor signatures across the variants diverge. Factory hides the differences behind a uniform call.
 
 Lazy initialization with non-trivial wiring (resolve config, look up registered strategies, allocate resources).
 
 # When NOT to use
 Plain old `new Foo()` works and the type is genuinely fixed.  Don't add a factory because 'one day we might.'
 
-The factory's only job is to call one constructor — that's a static method that's actively misleading.
+The factory's only job is to call one constructor. That's a static method that's actively misleading.
 
 # Structure
 Creator (abstract or interface) declares the factory method.  ConcreteCreators override it.  Or a static / module-level factory function that switches on input.

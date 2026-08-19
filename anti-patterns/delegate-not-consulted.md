@@ -2,18 +2,18 @@
 slug: delegate-not-consulted
 title: Burned Claude tokens on bulk work that a registered local delegate could have done
 hit_count: 1
-token_cost: high — every uncaught instance burns hundreds to thousands of output tokens for work the local LLM/MetaMCP server would have handled in-house at no Claude cost
+token_cost: high, every uncaught instance burns hundreds to thousands of output tokens for work the local LLM/MetaMCP server would have handled in-house at no Claude cost
 ---
 
 # Symptom
 
 Claude reads a 20 KB log file, summarizes it, and reports back. The session has a registered delegate (e.g. `local-llm`) with `log-skim` capability and a >70% success rate over multiple attempts. The delegate was never consulted. The token spend was unnecessary.
 
-Same shape: classification of 100 short items, embedding generation, batch translation, MCP tool calls available through MetaMCP — all done in-Claude when a registered delegate could have done them out-of-band.
+Same shape: classification of 100 short items, embedding generation, batch translation, MCP tool calls available through MetaMCP, all done in-Claude when a registered delegate could have done them out-of-band.
 
 # Root cause
 
-The local-delegate skill is opt-in, and "should I defer this?" is easy to skip during planning. The cost of forgetting is invisible from inside the turn — tokens flow without any signal that they were wasted.
+The local-delegate skill is opt-in, and "should I defer this?" is easy to skip during planning. The cost of forgetting is invisible from inside the turn. Tokens flow without any signal that they were wasted.
 
 # Remedy
 
@@ -35,9 +35,9 @@ That's the only way the stats stay honest. Future-Claude only knows what past-Cl
 
 # Detection
 
-If you've just finished an operation that read >5 KB of input and produced a short summary, and you can name the capability (`log-skim`, `bulk-summarization`, `doc-skim`), ask: "did I check the delegate registry first?" If no, that's the smell — record it as `failure` with `--task "did this in-Claude instead of consulting delegate"` so the gap is visible.
+If you've just finished an operation that read >5 KB of input and produced a short summary, and you can name the capability (`log-skim`, `bulk-summarization`, `doc-skim`), ask: "did I check the delegate registry first?" If no, that's the smell. Record it as `failure` with `--task "did this in-Claude instead of consulting delegate"` so the gap is visible.
 
 # See also
 
 - [[local-delegate]] skill
-- `/path/to/rote/server/README.md` — API reference
+- `/path/to/rote/server/README.md`, API reference

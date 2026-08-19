@@ -12,14 +12,14 @@ You want vector search in an SQLite-based app (this rote).
 
 Single-process embedded search; no separate service to operate.
 
-Tens of thousands to low millions of vectors — sqlite-vec handles this well.
+Tens of thousands to low millions of vectors. sqlite-vec handles this well.
 
 # When NOT to use
-Billions of vectors — use a dedicated vector DB (Qdrant, Milvus, Vespa).
+Billions of vectors, use a dedicated vector DB (Qdrant, Milvus, Vespa).
 
-You need distributed query — sqlite-vec is single-process.
+You need distributed query. sqlite-vec is single-process.
 
-You need hybrid search (BM25 + vector) as a built-in — sqlite-vec doesn't ship reranking.
+You need hybrid search (BM25 + vector) as a built-in. sqlite-vec doesn't ship reranking.
 
 # Limitations
 - Linear scan for small datasets; ANN index (vec0) for larger.

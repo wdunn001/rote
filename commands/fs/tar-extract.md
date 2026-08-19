@@ -16,14 +16,14 @@ tar xf  <file>.tar.zst    # zstd (modern tar auto-detects)
 ```
 
 # When to use
-Extract a tarball. Modern GNU tar auto-detects compression with `xf` alone — older systems need the flag.
+Extract a tarball. Modern GNU tar auto-detects compression with `xf` alone. Older systems need the flag.
 
 # When NOT to use
-Archive contains unknown / untrusted content — extract to a sandbox dir first.
+Archive contains unknown / untrusted content. Extract to a sandbox dir first.
 
 # Gotchas
 - `tar xzf` extracts INTO THE CURRENT DIR. Use `-C <dir>` to target somewhere else.
-- `-v` prints every file — slow on huge archives. Drop it.
+- `-v` prints every file, slow on huge archives. Drop it.
 - The TAR-BOMB problem: an archive that extracts to the current dir instead of a subdir, scattering files everywhere. Always `tar tzf <file> | head` first to inspect.
 - Modern tar (GNU 1.30+, macOS bsdtar) auto-detects compression. `tar xf` works for .tar.gz, .tar.xz, .tar.bz2, .tar.zst.
 

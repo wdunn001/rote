@@ -14,11 +14,11 @@ The user expects the model to operate on the runtime, not just answer in text.
 You want predictable, structured arguments instead of regex-parsing a free-text answer.
 
 # When NOT to use
-The model can answer in text without acting — don't reach for tools.
+The model can answer in text without acting. Don't reach for tools.
 
-The tool surface is huge and the model picks the wrong tool — narrow the surface or use an aggregator (MetaMCP).
+The tool surface is huge and the model picks the wrong tool. Narrow the surface or use an aggregator (MetaMCP).
 
-Tools have irreversible side effects and you don't have user confirmation — gate destructive tools.
+Tools have irreversible side effects and you don't have user confirmation. Gate destructive tools.
 
 # Structure
 Tools declared with schemas (name, description, input shape).  LLM emits a tool_call block.  Runtime validates args, executes, returns the result as a tool_result.  Loop until the model produces a regular response.

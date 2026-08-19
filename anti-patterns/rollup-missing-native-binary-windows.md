@@ -2,7 +2,7 @@
 slug: rollup-missing-native-binary-windows
 title: Astro/Vite build fails on Windows with missing @rollup/rollup-win32-x64-msvc
 hit_count: 1
-token_cost: medium — burns a couple of failed build attempts before the cryptic MODULE_NOT_FOUND is diagnosed as the npm optional-dep bug
+token_cost: medium, burns a couple of failed build attempts before the cryptic MODULE_NOT_FOUND is diagnosed as the npm optional-dep bug
 ---
 
 # Symptom
@@ -44,7 +44,7 @@ The heavier fix (only if you want the host to own its tree) is to delete `node_m
 
 # Detection
 
-`MODULE_NOT_FOUND` for any `@rollup/rollup-<platform>-<arch>` package, or any `@esbuild/<platform>` / `@swc/core-<platform>` analogue — all share this optional-dep failure mode. Smell: the build worked in CI/container but fails only on the dev host, and the host OS differs from where `node_modules` was last installed.
+`MODULE_NOT_FOUND` for any `@rollup/rollup-<platform>-<arch>` package, or any `@esbuild/<platform>` / `@swc/core-<platform>` analogue, all share this optional-dep failure mode. Smell: the build worked in CI/container but fails only on the dev host, and the host OS differs from where `node_modules` was last installed.
 
 # See also
 

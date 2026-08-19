@@ -1,21 +1,21 @@
 ---
 name: rote
-description: Use this when you're about to write a non-trivial shell script, a `.env` mutator, a deploy verifier, a git/branch sweeper, or any operation that is plausibly already solved — and ALWAYS when the operation touches secrets. Discover and run reusable, parameterized scripts + anti-patterns from the local Rote catalog BEFORE writing new code, and record new findings + scripts back. A deterministic, auditable substitute for "LLM generates and runs a shell command on the fly."
+description: Use this when you're about to write a non-trivial shell script, a `.env` mutator, a deploy verifier, a git/branch sweeper, or any operation that is plausibly already solved, and ALWAYS when the operation touches secrets. Discover and run reusable, parameterized scripts + anti-patterns from the local Rote catalog BEFORE writing new code, and record new findings + scripts back. A deterministic, auditable substitute for "LLM generates and runs a shell command on the fly."
 ---
 
-# Rote — Discovery + Execution Skill
+# Rote, Discovery + Execution Skill
 
 There is a local Rote at `/path/to/rote/` exposing reusable, parameterized scripts and anti-pattern records via a local HTTP API (`127.0.0.1:5572`) and a terse CLI (`/path/to/rote/cli/rote`). Use it BEFORE writing new shell code.
 
 ## Hard rules (binding, no exceptions)
 
-1. **Never write a script to `/tmp/` and run it once.** Write it to `/path/to/rote/scripts/<name>.sh` from the start. Use `rote new <name>.sh "<purpose>"` to scaffold with frontmatter pre-filled — it's no more effort than `cat > /tmp/x.sh`.
+1. **Never write a script to `/tmp/` and run it once.** Write it to `/path/to/rote/scripts/<name>.sh` from the start. Use `rote new <name>.sh "<purpose>"` to scaffold with frontmatter pre-filled. It's no more effort than `cat > /tmp/x.sh`.
 2. **Before writing any new shell of 5+ lines, run `rote find "<one-line description>"`.** If the top match has distance < 0.7, use it. If distance < 1.0, read it and decide whether to EXTEND (add a flag) vs write fresh. Only write fresh if no match resolves cleanly.
-3. **For codebase-wide find-and-replace, use `find-replace-tree.sh`** — never hand-roll `find … -exec sed -i …`. The library script handles backup, glob filtering, dry-run, gitignore awareness, and binary-file skipping in one call.
-4. **For copying code blocks between files, use `copy-code-block.sh`** — never Read-then-Write-line-by-line. Anchor by regex or line range, optional transform pipe, optional anchored insert vs block-replace.
-5. **For SSH ops on remote hosts, use `ssh-exec.sh` or `ssh-docker-restart.sh`** — never inline `ssh user@host "complex shell"` chains. The library scripts handle timeout, latency capture, and audit logging.
+3. **For codebase-wide find-and-replace, use `find-replace-tree.sh`**, never hand-roll `find … -exec sed -i …`. The library script handles backup, glob filtering, dry-run, gitignore awareness, and binary-file skipping in one call.
+4. **For copying code blocks between files, use `copy-code-block.sh`**, never Read-then-Write-line-by-line. Anchor by regex or line range, optional transform pipe, optional anchored insert vs block-replace.
+5. **For SSH ops on remote hosts, use `ssh-exec.sh` or `ssh-docker-restart.sh`**, never inline `ssh user@host "complex shell"` chains. The library scripts handle timeout, latency capture, and audit logging.
 6. **When an operation succeeds and you can imagine doing it again next session, promote it.** Either save it as a new library script OR add a flag to the closest existing one. The 30 seconds of frontmatter pays back forever.
-7. **Make it generic, not a one-off.** A library script must be parameterized: take the paths, hosts, names, and values that vary as `--flags` (with sane defaults where possible), never bake in this run's specifics. A script that only works for today's exact inputs is not a reusable asset, it is a one-off that happens to live in the library. The `inputs:` frontmatter is the contract — if it is empty, the script almost certainly is not reusable yet. The same goes for what you save as snippets and patterns: extract the shape, parameterize the holes (`${PLACEHOLDER}`), and write down what each one is for.
+7. **Make it generic, not a one-off.** A library script must be parameterized: take the paths, hosts, names, and values that vary as `--flags` (with sane defaults where possible), never bake in this run's specifics. A script that only works for today's exact inputs is not a reusable asset, it is a one-off that happens to live in the library. The `inputs:` frontmatter is the contract. If it is empty, the script almost certainly is not reusable yet. The same goes for what you save as snippets and patterns: extract the shape, parameterize the holes (`${PLACEHOLDER}`), and write down what each one is for.
 
 ## When to invoke
 
@@ -28,8 +28,8 @@ There is a local Rote at `/path/to/rote/` exposing reusable, parameterized scrip
 
 ## When NOT to invoke
 
-- One-off `ls` / `grep` / `cat` / `find` to look at one file — those are not what the library is for
-- A single curl probe that fits on one line — just run it
+- One-off `ls` / `grep` / `cat` / `find` to look at one file. Those are not what the library is for
+- A single curl probe that fits on one line. Just run it
 - The user explicitly asked for a fresh implementation
 
 ## Decision flow
@@ -87,7 +87,7 @@ rote health         # API health + embed model + vec version
 rote up             # start the API if it's not up (idempotent)
 ```
 
-If the API isn't up, run `rote up` once at the start of the session. First run installs the venv + embedding model (~80 MB, one-time, ~2–3 min).
+If the API isn't up, run `rote up` once at the start of the session. First run installs the venv + embedding model (~80 MB, one-time, ~2-3 min).
 
 ## Adding a new script
 
@@ -124,7 +124,7 @@ If hand-writing:
 # =============================================================================
 ```
 
-`family:` is the LOGICAL slug shared across cross-environment variants (`find-replace-tree.sh`, `.ps1`, `.py` all use `family: find-replace-tree`). `environment:` is the runtime tag — common values: `posix-bash`, `posix-zsh`, `windows-pwsh`, `windows-cmd`, `cross-python`, `cross-node`, `cross-ruby`.
+`family:` is the LOGICAL slug shared across cross-environment variants (`find-replace-tree.sh`, `.ps1`, `.py` all use `family: find-replace-tree`). `environment:` is the runtime tag, common values: `posix-bash`, `posix-zsh`, `windows-pwsh`, `windows-cmd`, `cross-python`, `cross-node`, `cross-ruby`.
 
 4. The API auto-reindexes on next `rote list` / `find` based on file mtime, and prunes rows whose on-disk path is gone (so renames + repo moves don't leave phantoms).
 
@@ -138,7 +138,7 @@ rote family find-replace-tree --env windows-pwsh
 # variant:    <every variant + its environment>
 ```
 
-`best_match: none` = "no variant exists for this runtime — do it yourself or write one." When you write one, drop it under `scripts/` with the matching extension; the indexer picks the right `environment` automatically.
+`best_match: none` = "no variant exists for this runtime, do it yourself or write one." When you write one, drop it under `scripts/` with the matching extension; the indexer picks the right `environment` automatically.
 
 ## Adding a new anti-pattern
 
@@ -152,7 +152,7 @@ Or write a markdown file under `/path/to/rote/anti-patterns/<slug>.md` with the 
 
 ## Other clients (the library is not Claude-only)
 
-The same backend has three surfaces — pick by what you're driving:
+The same backend has three surfaces. Pick by what you're driving:
 
 | Client | Surface | Path |
 |---|---|---|
@@ -160,13 +160,13 @@ The same backend has three surfaces — pick by what you're driving:
 | Any MCP client (Claude Desktop, Cursor, Continue.dev, Cline, the MetaMCP aggregator on edge-host) | MCP tools via stdio | `/path/to/rote/mcp-server/start.sh` |
 | Any function-calling LLM (OpenAI-compatible APIs, local Ollama, sglang) | OpenAPI spec | `http://127.0.0.1:5572/openapi.json` |
 
-All three share the same SQLite DB, vault, and delegate registry — the source of truth lives in the FastAPI server. Connecting from Claude Desktop / Cursor / etc.: see `/path/to/rote/mcp-server/README.md`.
+All three share the same SQLite DB, vault, and delegate registry. The source of truth lives in the FastAPI server. Connecting from Claude Desktop / Cursor / etc.: see `/path/to/rote/mcp-server/README.md`.
 
 ## Cross-reference
 
-- [[secret-handling]] — secret-specific use cases (vault, .env injection)
-- [[chronicle]] — session post-mortem — should automatically record new anti-patterns
-- [[local-delegate]] — sibling skill for deferring work to the delegate registry
+- [[secret-handling]], secret-specific use cases (vault, .env injection)
+- [[chronicle]], session post-mortem, should automatically record new anti-patterns
+- [[local-delegate]], sibling skill for deferring work to the delegate registry
 
 ## Recovery if the API is down
 

@@ -9,13 +9,13 @@ references:
 
 # When to use
 Append KEY=VALUE lines inside a labeled block in a .env file so the writer
-is idempotent — re-running replaces the prior block atomically rather than
+is idempotent, re-running replaces the prior block atomically rather than
 duplicating.
 
 # When NOT to use
 Single-key replacement (just sed).
 
-Values contain secrets — use the vault inject API instead.
+Values contain secrets, use the vault inject API instead.
 
 # Placeholders
 - ENV_FILE: absolute path to the .env file (example: /srv/app/.env)

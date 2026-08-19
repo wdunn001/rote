@@ -16,7 +16,7 @@ Failures on the consumer side shouldn't block producers (the queue absorbs).
 # When NOT to use
 The operation is genuinely synchronous (the producer needs the result to continue).  Don't queue what you need now.
 
-The queue grows unboundedly and you've not addressed the underlying mismatch — added latency, not solved a problem.
+The queue grows unboundedly and you've not addressed the underlying mismatch, added latency, not solved a problem.
 
 # Structure
 Producer enqueues fire-and-forget.  Queue (RabbitMQ, ServiceBus, SQS, in-proc Channel) buffers.  Consumer dequeues at its own pace, with retry on failure (often dead-letter on max retries).

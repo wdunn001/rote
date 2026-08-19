@@ -10,8 +10,8 @@ tags: architecture, adr, trade-offs, decision
 Help me decide how to build ${CAPABILITY}, then record it as an ADR.
 
 1. Restate the problem, the forces (constraints + quality attributes: perf, offline, cost, ops, security), and what success looks like.
-2. Lay out 2–4 viable options. For each: how it works, what it's good at, where it hurts, and which forces it satisfies/violates.
-3. Check the library first — is there a recorded pattern, technology, or prior stack outcome for this? Reuse the canonical shape; don't reinvent.
+2. Lay out 2-4 viable options. For each: how it works, what it's good at, where it hurts, and which forces it satisfies/violates.
+3. Check the library first. Is there a recorded pattern, technology, or prior stack outcome for this? Reuse the canonical shape; don't reinvent.
 4. Recommend one, with the explicit reason it wins given THESE forces (not in the abstract).
 5. Write the decision as a short ADR: context, options considered, decision, consequences (including what we're accepting/giving up).
 

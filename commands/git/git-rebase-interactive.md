@@ -16,8 +16,8 @@ git rebase -i HEAD~<N>
 Squash, reorder, edit, or drop the last N commits before pushing. Clean up a feature branch's history for a PR.
 
 # When NOT to use
-Commits already pushed to a shared branch — you'll force-push and rewrite history other people depend on. ONLY use on personal branches before pushing.
-More than ~20 commits — interactive rebase becomes unwieldy. Use `git filter-repo` or `git rebase --autosquash` for systematic operations.
+Commits already pushed to a shared branch. You'll force-push and rewrite history other people depend on. ONLY use on personal branches before pushing.
+More than ~20 commits. Interactive rebase becomes unwieldy. Use `git filter-repo` or `git rebase --autosquash` for systematic operations.
 
 # Gotchas
 - The editor opens with the COMMITS BUT THE ORDER IS REVERSED FROM `git log`. Top of the file = oldest commit; bottom = newest.

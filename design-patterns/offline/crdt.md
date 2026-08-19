@@ -11,14 +11,14 @@ Multi-device editing of the same data with possibly-disconnected periods.
 
 Distributed counters / sets that need to converge after partition heals (Acme swarm state).
 
-You want NO server-side merge logic — the math guarantees convergence regardless of message order.
+You want NO server-side merge logic. The math guarantees convergence regardless of message order.
 
 # When NOT to use
-Operations are intrinsically serial (a bank ledger — order matters for correctness).
+Operations are intrinsically serial (a bank ledger, where order matters for correctness).
 
 The data has invariants CRDTs can't express (a unique constraint across the dataset).
 
-You haven't picked the right CRDT — picking 'just an LWW register' for something complex causes silent data loss.
+You haven't picked the right CRDT. Picking 'just an LWW register' for something complex causes silent data loss.
 
 # Structure
 Operations are commutative + associative + idempotent (or use vector clocks).  Common CRDTs: G-Counter, PN-Counter, LWW-Register, OR-Set, RGA (sequence).  Sync exchanges deltas or full state.

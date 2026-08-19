@@ -2,7 +2,7 @@
 slug: persistent-data-under-claude-config-dir
 title: Storing real persistent data (databases, vaults) under ~/.claude/ instead of a user-owned project location
 hit_count: 1
-token_cost: medium — once discovered the user has to relocate everything; meanwhile their data feels hidden + un-versionable + un-backupable
+token_cost: medium, once discovered the user has to relocate everything; meanwhile their data feels hidden + un-versionable + un-backupable
 ---
 
 # Symptom
@@ -28,7 +28,7 @@ Split the two concerns at design time:
 3. Skills reference the backing location via **absolute path** in their SKILL.md.
 4. The backing location is **its own git repo** with appropriate `.gitignore` for secrets + databases + venvs.
 
-When you find yourself writing into `~/.claude/` for anything other than a SKILL.md, a `settings.json`, a project memory file, or a tool registration — STOP. That data needs a different home.
+When you find yourself writing into `~/.claude/` for anything other than a SKILL.md, a `settings.json`, a project memory file, or a tool registration, STOP. That data needs a different home.
 
 # Detection
 
@@ -44,4 +44,4 @@ Greppable smell: a `.gitignore` or a `requirements.txt` or a database file under
 # See also
 
 - The August 2026 relocation event: `~/.claude/rote/` → `/path/to/rote/` (its own git repo at https://github.com/wdunn001/rote)
-- [[rote]] skill — points at the relocated home
+- [[rote]] skill, points at the relocated home

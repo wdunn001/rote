@@ -16,7 +16,7 @@ ps aux | grep -v grep | grep <pattern>
 Quick check: is <process> running, and what's its PID / command line?
 
 # When NOT to use
-Production monitoring (use proper observability). Scripted PID lookups — use `pgrep` or `pidof` instead (no need to filter out grep itself).
+Production monitoring (use proper observability). Scripted PID lookups. Use `pgrep` or `pidof` instead (no need to filter out grep itself).
 
 # Gotchas
 - `ps aux | grep foo` ALWAYS matches the grep itself unless you filter (`grep -v grep`). The classic gotcha.

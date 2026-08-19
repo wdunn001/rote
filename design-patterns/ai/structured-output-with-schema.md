@@ -16,9 +16,9 @@ Multiple LLM calls feed each other and a shared schema keeps the contract stable
 # When NOT to use
 The answer is genuinely free-form prose (a summary, an explanation).
 
-The schema is so restrictive it kills useful answers — relax it.
+The schema is so restrictive it kills useful answers. Relax it.
 
-The model doesn't support the constraint mechanism well (older models, no JSON-mode, no schema-grammar) — use prompt-engineering + post-validation.
+The model doesn't support the constraint mechanism well (older models, no JSON-mode, no schema-grammar). Use prompt-engineering + post-validation.
 
 # Structure
 Pass schema to the model (response_format json_schema, function-call return type, grammar-constrained decoding).  Validate output before using it.  Retry with feedback on schema failure.

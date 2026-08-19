@@ -13,36 +13,36 @@ Same backend, same data, two protocols. Both stay in sync because both call the 
 
 ## Tools exposed
 
-The full list — every tool the MCP client will see:
+The full list, every tool the MCP client will see:
 
 ### Script discovery + execution
-- `find_script(query, limit?)` — semantic search
-- `list_scripts()` — full inventory
-- `show_script(name)` — frontmatter of one
-- `run_script(name, args?, timeout_seconds?)` — execute, capture stdout/stderr/exit
+- `find_script(query, limit?)`, semantic search
+- `list_scripts()`, full inventory
+- `show_script(name)`, frontmatter of one
+- `run_script(name, args?, timeout_seconds?)`, execute, capture stdout/stderr/exit
 
-### Vault (NAMES only — values never returned)
-- `vault_keys()` — names + byte sizes
-- `vault_has(keys)` — which exist
-- `vault_inject(env_file, keys, block_label?)` — write secrets into a .env, server-side
+### Vault (NAMES only, values never returned)
+- `vault_keys()`, names + byte sizes
+- `vault_has(keys)`, which exist
+- `vault_inject(env_file, keys, block_label?)`, write secrets into a .env, server-side
 
 ### Anti-patterns
-- `find_anti_pattern(query, limit?)` — semantic search
-- `list_anti_patterns()` — sorted by hit count
-- `add_anti_pattern(slug, title, symptom, remedy, token_cost?)` — record or bump
+- `find_anti_pattern(query, limit?)`, semantic search
+- `list_anti_patterns()`, sorted by hit count
+- `add_anti_pattern(slug, title, symptom, remedy, token_cost?)`, record or bump
 
 ### Delegates (defer mechanical work to local resources)
-- `list_delegates()` — registered local LLMs / MCP servers / SSH hosts
-- `best_delegate(capability, min_attempts?, min_success_rate?)` — pick the proven-best
-- `show_delegate(name)` — full record + recent log
-- `dispatch_to_delegate(delegate, capability, prompt, …)` — defer to an LLM delegate
-- `dispatch_mcp_tool(delegate, tool_name, args, …)` — call an MCP tool via MetaMCP
-- `log_delegation(delegate, capability, task_summary, outcome, …)` — record outcome
-- `add_delegate(name, kind, contact, capabilities, …)` — register a new resource
+- `list_delegates()`, registered local LLMs / MCP servers / SSH hosts
+- `best_delegate(capability, min_attempts?, min_success_rate?)`, pick the proven-best
+- `show_delegate(name)`, full record + recent log
+- `dispatch_to_delegate(delegate, capability, prompt, …)`, defer to an LLM delegate
+- `dispatch_mcp_tool(delegate, tool_name, args, …)`, call an MCP tool via MetaMCP
+- `log_delegation(delegate, capability, task_summary, outcome, …)`, record outcome
+- `add_delegate(name, kind, contact, capabilities, …)`, register a new resource
 
 ### Diagnostics
-- `healthz()` — backend health
-- `recent_audit(limit?)` — audit events (key names + counts, never bytes)
+- `healthz()`, backend health
+- `recent_audit(limit?)`, audit events (key names + counts, never bytes)
 
 ## Setup (first time)
 
@@ -51,7 +51,7 @@ The full list — every tool the MCP client will see:
 ~/.claude/rote/mcp-server/start.sh
 ```
 
-First run bootstraps a venv at `~/.cache/rote-mcp/venv/` (WSL native, not drvfs — much faster, no fragility) and installs `mcp` + `httpx`. Subsequent runs just exec the server.
+First run bootstraps a venv at `~/.cache/rote-mcp/venv/` (WSL native, not drvfs, much faster, no fragility) and installs `mcp` + `httpx`. Subsequent runs just exec the server.
 
 Idempotent. Safe to invoke from any MCP client config.
 
@@ -104,7 +104,7 @@ mcpServers:
 
 ### Cline (VS Code extension)
 
-VS Code settings — `cline.mcp.servers`:
+VS Code settings, `cline.mcp.servers`:
 
 ```json
 {
@@ -135,16 +135,16 @@ Once the rote MCP server is reachable from edge-host, register it in MetaMCP so 
 
 Caveat: the rote backend (FastAPI + SQLite + vault) currently runs on the WSL box, not edge-host. To run it from edge-host you'd either:
 - Mirror the repo + state to edge-host and let it own the data
-- Point the MCP server's `SCRIPT_LIBRARY_API` at the WSL box (will need the WSL API to listen on `0.0.0.0` or a tunnel — **adds auth requirement** because vault endpoints currently trust localhost)
+- Point the MCP server's `SCRIPT_LIBRARY_API` at the WSL box (will need the WSL API to listen on `0.0.0.0` or a tunnel, **adds auth requirement** because vault endpoints currently trust localhost)
 
-The cleaner long-term move is one canonical rote backend with proper auth; that's a roadmap item (see [`../ROADMAP.md`](../ROADMAP.md#backlog) — "Authn for non-localhost API access").
+The cleaner long-term move is one canonical rote backend with proper auth; that's a roadmap item (see [`../ROADMAP.md`](../ROADMAP.md#backlog), "Authn for non-localhost API access").
 
 ## Troubleshooting
 
 **MCP client says "server not responding":**
-- `~/.claude/rote/mcp-server/start.sh < /dev/null` — should exit with an MCP handshake error to stderr, confirming the binary works.
+- `~/.claude/rote/mcp-server/start.sh < /dev/null`, should exit with an MCP handshake error to stderr, confirming the binary works.
 - Make sure the FastAPI backend is up: `curl -fsS http://127.0.0.1:5572/healthz`.
-- Check the client's MCP log for the captured stderr — `mcp/start.sh` writes install + error diagnostics there.
+- Check the client's MCP log for the captured stderr. `mcp/start.sh` writes install + error diagnostics there.
 
 **`mcp` import fails:**
 - venv install was interrupted. Wipe + retry: `rm -rf ~/.cache/rote-mcp/venv && ~/.claude/rote/mcp-server/start.sh < /dev/null`.

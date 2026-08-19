@@ -16,14 +16,14 @@ apt-get update && apt-get install -y <package> [<package>...]
 Non-interactive package install in scripts, Dockerfiles, CI.
 
 # When NOT to use
-Interactive shell — use `apt install` (friendlier UI, same backend). You just ran `apt-get update` — skip the chain.
+Interactive shell, use `apt install` (friendlier UI, same backend). You just ran `apt-get update`. Skip the chain.
 
 # Gotchas
 - WITHOUT the `&& apt-get update` you can get stale apt cache: 'package not found' or wrong-version installs.
 - `-y` is essential non-interactively; without it the install hangs on the first confirmation prompt.
 - Use `apt-get` (NOT `apt`) in scripts. `apt` itself warns 'do not use in scripts' because its CLI is unstable.
 - `--no-install-recommends` can drastically cut install size and prevent surprise dependencies.
-- Run as root (or via sudo) — apt-get will refuse otherwise.
+- Run as root (or via sudo). apt-get will refuse otherwise.
 
 # Flags
 - `-y` / `--yes`: auto-answer yes to all prompts

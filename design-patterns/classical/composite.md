@@ -12,12 +12,12 @@ You have a tree structure where leaves and branches should respond to the same o
 Operations should recurse naturally through the structure.
 
 # When NOT to use
-The structure is flat (just a list) — composite is for trees, not collections.
+The structure is flat (just a list). Composite is for trees, not collections.
 
-Leaf and Composite need genuinely different interfaces — forcing them into the same shape produces uniformly-bad code.
+Leaf and Composite need genuinely different interfaces. Forcing them into the same shape produces uniformly-bad code.
 
 # Structure
-Component (abstract or interface) — both Leaf and Composite implement it.  Composite holds children and forwards operations.
+Component (abstract or interface), both Leaf and Composite implement it.  Composite holds children and forwards operations.
 
 # Example
 ```csharp

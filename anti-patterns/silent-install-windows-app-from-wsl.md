@@ -1,8 +1,8 @@
 ---
 slug: silent-install-windows-app-from-wsl
-title: Silent install of a Windows .exe from a WSL shell — blocked by Defender + SmartScreen + UAC even when you do everything right
+title: Silent install of a Windows .exe from a WSL shell, blocked by Defender + SmartScreen + UAC even when you do everything right
 hit_count: 1
-token_cost: high — hours of debug time chasing "Access denied" / "file in use" / no-output failures across cmd.exe, PowerShell, winget, and the installer itself, when the actual blockers are Windows-side and silent
+token_cost: high, hours of debug time chasing "Access denied" / "file in use" / no-output failures across cmd.exe, PowerShell, winget, and the installer itself, when the actual blockers are Windows-side and silent
 ---
 
 # Symptom
@@ -24,11 +24,11 @@ Verifying by checking:
 
 Multiple Windows protections layer up against a WSL-launched .exe:
 
-1. **Windows Defender real-time scan** — first-time launch of a new exe triggers a deep scan (10–60 s). During that window the file is locked; `Start-Process` returns "file is being used by another process."
-2. **SmartScreen / Mark of the Web** — files downloaded via WSL `curl` onto an NTFS path lack the Zone Identifier ADS that Windows uses to mark them safe-or-not. `Start-Process` returns "Access is denied."
-3. **UAC propagation** — even for per-user installs to `%LocalAppData%`, some installers (or their bundled prerequisites like CUDA runtime) require elevation. UAC dialogs spawned by WSL-launched processes can hang invisibly because there's no foreground Windows session to surface them.
-4. **Inno Setup silent install can stall** — `/SILENT /SUPPRESSMSGBOXES` is supposed to skip ALL prompts, but Ollama's installer in particular (post-0.24 era) bundles CUDA runtime extraction that can stall silently for reasons that don't surface in logs.
-5. **winget UAC behavior** — `winget install` looks like it works (no error) but spawns a child elevated process that the launcher can't track; the WSL-side `winget` returns success while the actual install is still pending or failed.
+1. **Windows Defender real-time scan**. First-time launch of a new exe triggers a deep scan (10-60 s). During that window the file is locked; `Start-Process` returns "file is being used by another process."
+2. **SmartScreen / Mark of the Web**. Files downloaded via WSL `curl` onto an NTFS path lack the Zone Identifier ADS that Windows uses to mark them safe-or-not. `Start-Process` returns "Access is denied."
+3. **UAC propagation**. Even for per-user installs to `%LocalAppData%`, some installers (or their bundled prerequisites like CUDA runtime) require elevation. UAC dialogs spawned by WSL-launched processes can hang invisibly because there's no foreground Windows session to surface them.
+4. **Inno Setup silent install can stall**. `/SILENT /SUPPRESSMSGBOXES` is supposed to skip ALL prompts, but Ollama's installer in particular (post-0.24 era) bundles CUDA runtime extraction that can stall silently for reasons that don't surface in logs.
+5. **winget UAC behavior**. `winget install` looks like it works (no error) but spawns a child elevated process that the launcher can't track; the WSL-side `winget` returns success while the actual install is still pending or failed.
 
 The killer combo: any of these alone is recoverable.  Several together produce a state where the installer appears to "run" but never completes, killing it leaves zombie file locks, and you can't tell from the WSL side whether to wait or retry.
 
@@ -49,7 +49,7 @@ The user-driven install handles UAC naturally; SmartScreen prompts on first laun
    ```powershell
    Unblock-File -Path 'C:\Users\willi\Downloads\OllamaSetup.exe'
    ```
-2. **Use winget** with NO `--silent` flag, OR with `--silent` PLUS the right `--scope user` and `--accept-source-agreements --accept-package-agreements` — let the installer prompt for UAC if it needs to:
+2. **Use winget** with NO `--silent` flag, OR with `--silent` PLUS the right `--scope user` and `--accept-source-agreements --accept-package-agreements`. Let the installer prompt for UAC if it needs to:
    ```powershell
    winget install --id Ollama.Ollama --scope user --accept-package-agreements --accept-source-agreements
    ```
@@ -68,6 +68,6 @@ You're hitting this anti-pattern when:
 
 # See also
 
-- [[wsl-gpu-passthrough-check]] command — adjacent WSL-Windows bridge knowledge.
-- [[wmic-from-wsl]] command — using Windows-side hardware enumeration from WSL.
-- The script `scripts/install-ollama-windows-from-wsl.sh` — attempts the silent path and falls back to interactive when blockers surface.
+- [[wsl-gpu-passthrough-check]] command, adjacent WSL-Windows bridge knowledge.
+- [[wmic-from-wsl]] command, using Windows-side hardware enumeration from WSL.
+- The script `scripts/install-ollama-windows-from-wsl.sh`, attempts the silent path and falls back to interactive when blockers surface.

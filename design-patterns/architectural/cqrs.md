@@ -33,7 +33,7 @@ public class IssueDroneCommandHandler {
     }
 }
 
-// Read side — separate denormalized projection
+// Read side, separate denormalized projection
 public class DroneCockpitQuery {
     public async Task<DroneCockpitView> Get(DroneId id) =>
         await _readDb.GetByDroneIdAsync(id);  // not the same DB; not the same shape

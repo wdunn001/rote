@@ -13,10 +13,10 @@ snippet registers a typed HttpClient + a composed policy stack:
 timeout(individual) → retry → circuit-breaker → bulkhead.
 
 # When NOT to use
-You're using Microsoft.Extensions.Http.Resilience (.NET 8+) — has a more
+You're using Microsoft.Extensions.Http.Resilience (.NET 8+), has a more
 modern API and is the recommended replacement.
 
-You're using HttpClientFactory's basic resilience — Polly composition gives
+You're using HttpClientFactory's basic resilience. Polly composition gives
 you more control.
 
 # Placeholders
@@ -32,7 +32,7 @@ you more control.
 
 # Snippet
 ```csharp
-// ${POLICY_NAME} — outbound calls to ${BASE_ADDRESS}
+// ${POLICY_NAME}, outbound calls to ${BASE_ADDRESS}
 services.AddHttpClient<${CLIENT_INTERFACE}, ${CLIENT_TYPE}>(c =>
     {
         c.BaseAddress = new Uri("${BASE_ADDRESS}");

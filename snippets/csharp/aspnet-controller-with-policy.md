@@ -13,9 +13,9 @@ New REST endpoint in Acme where authorization is permission-based
 AuthorizationExtensions.Policy enum + delegates to an AppService.
 
 # When NOT to use
-Public endpoint (no auth) — use [AllowAnonymous].
+Public endpoint (no auth). Use [AllowAnonymous].
 
-The work belongs in the Worker (queued) — controller should enqueue, not do it.
+The work belongs in the Worker (queued). Controller should enqueue, not do it.
 
 # Placeholders
 - CONTROLLER_NAME: controller class name (example: DroneCommandsController)

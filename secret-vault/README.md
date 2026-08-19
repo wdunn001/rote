@@ -8,9 +8,9 @@ The whole point: the AI agent learns the **names** of your secrets and can ask t
 
 ```
 secret-vault/
-├── README.md             (this file — safe to share)
-├── secrets.json          (CONTAINS BYTES — gitignored, never read by the agent)
-└── secrets.example.json  (template / shape reference — safe to share)
+├── README.md             (this file, safe to share)
+├── secrets.json          (CONTAINS BYTES, gitignored, never read by the agent)
+└── secrets.example.json  (template / shape reference, safe to share)
 ```
 
 The agent can:
@@ -71,9 +71,9 @@ The byte count is a useful sanity check (lets you see "PEM key was 1700 bytes, g
 
 ## When the vault is the wrong tool
 
-- **Production secrets stay in production** — a managed secret manager (Azure Key Vault, AWS Secrets Manager / KMS, GCP Secret Manager, HashiCorp Vault). This vault is for the local dev workflow and for re-injecting after a host wipe.
-- **Per-user secrets** (an OAuth client secret tied to a specific developer's identity) — those live in the developer's own `.env`, not here.
-- **Anything where regeneration is cheaper than backup** — random session keys, ephemeral nonces, etc. Re-generate, do not store.
+- **Production secrets stay in production**, a managed secret manager (Azure Key Vault, AWS Secrets Manager / KMS, GCP Secret Manager, HashiCorp Vault). This vault is for the local dev workflow and for re-injecting after a host wipe.
+- **Per-user secrets** (an OAuth client secret tied to a specific developer's identity). Those live in the developer's own `.env`, not here.
+- **Anything where regeneration is cheaper than backup**, random session keys, ephemeral nonces, etc. Re-generate, do not store.
 
 ## Recovery
 

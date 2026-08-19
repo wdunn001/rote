@@ -13,7 +13,7 @@ For ${TASK}, first decompose the work into independent units that don't depend o
 2. Group the independent ones into a parallel batch; keep the dependent ones in order after their prerequisite.
 3. Launch the independent batch together (parallel tool calls / subagents), one focused unit each.
 4. Collect results, then do the dependent steps.
-5. Synthesize into one coherent result — don't just concatenate the pieces.
+5. Synthesize into one coherent result. Don't just concatenate the pieces.
 
 If the units would conflict on shared state (same files, same resource), isolate them or serialize just those. Note anything you had to serialize and why.
 

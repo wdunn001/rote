@@ -3,7 +3,7 @@ slug: clean-architecture
 name: Clean Architecture
 category: architectural
 intent: Organize code so business rules don't depend on infrastructure, UI, or frameworks; outer layers point inward
-references: Uncle Bob Martin; Acme uses this — see CLAUDE.md 'Architecture boundaries'
+references: Uncle Bob Martin; Acme uses this, see CLAUDE.md 'Architecture boundaries'
 ---
 
 # When to use
@@ -14,9 +14,9 @@ Multiple delivery channels (web + CLI + worker + mobile) need the same business 
 You want testability without spinning up infra (Application tests use fake adapters).
 
 # When NOT to use
-CRUD over a single DB with no business logic — a clean architecture skeleton is overhead.
+CRUD over a single DB with no business logic. A clean architecture skeleton is overhead.
 
-Prototype / scratch code — focus on shipping; clean architecture if it survives.
+Prototype / scratch code. Focus on shipping; clean architecture if it survives.
 
 # Structure
 Concentric layers, dependencies point inward:

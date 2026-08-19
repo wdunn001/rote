@@ -15,7 +15,7 @@ You want central auth + namespacing across many tool surfaces.
 Acme uses MetaMCP on edge-host to aggregate the rote MCP server + others, exposed at /metamcp/{endpoint}/mcp with Bearer auth.
 
 # When NOT to use
-You have only one MCP server — direct connection.
+You have only one MCP server, direct connection.
 
 The aggregator adds latency you can't afford.
 

@@ -1,6 +1,6 @@
 ---
 slug: deploy-cost-ramp-preflight-first
-name: Deploy cost-ramp — fast-fail at the cheapest stage
+name: Deploy cost-ramp, fast-fail at the cheapest stage
 category: architectural
 intent: Order deploy-pipeline stages by wall-clock so failures surface at the earliest stage that can catch them, never burn an expensive stage on a check a cheaper stage could have run
 references: |
@@ -53,12 +53,12 @@ if (composeCmdBuildsDockerImages(composeCmd)) {
 
 1. **Every preflight check has a bypass env var.**  Operators legitimately need to deploy server-only changes on top of known-broken web sometimes.  Don't hard-block.
 2. **Preflight uses the SAME tool the build stage uses.**  If docker runs `tsc -b`, preflight runs `tsc -b --noEmit`.  Don't preflight with a weaker check.
-3. **No silent skips.**  If preflight can't run (missing node_modules, missing CLI), warn loudly — don't silently let the slower stage catch the error.
+3. **No silent skips.**  If preflight can't run (missing node_modules, missing CLI), warn loudly. Don't silently let the slower stage catch the error.
 4. **Log timing on success.**  "Preflight OK in 87 s" tells operators what they saved.
 
 # Related
 
-- [[tsc-noemit-misses-project-references]] — common subtle bug in TS preflight.
+- [[tsc-noemit-misses-project-references]], common subtle bug in TS preflight.
 
 # Real-world implementation
 

@@ -1,6 +1,6 @@
 ---
 slug: tsc-noemit-misses-project-references
-title: tsc --noEmit only checks the root tsconfig — misses errors in referenced sub-projects
+title: tsc --noEmit only checks the root tsconfig, misses errors in referenced sub-projects
 category: typescript-build
 cost: one wasted deploy cycle (preflight passes, docker build fails 2 minutes in)
 ---
@@ -13,17 +13,17 @@ Local `tsc --noEmit` reports zero errors.  CI / docker / production build runs `
 
 `tsc --noEmit` without `-b` only checks files included in the root `tsconfig.json`.  In a project-reference setup (`tsconfig.json` with `references: [{ path: "./apps/foo" }, { path: "./packages/bar" }]`), errors in the referenced sub-projects are **not surfaced** by plain `--noEmit`.
 
-`tsc -b` (build mode) walks the project graph the same way `tsc --build` would — it covers every referenced project AND uses the strict-mode flags each one declares in its own tsconfig.  That matches what the docker build actually runs.
+`tsc -b` (build mode) walks the project graph the same way `tsc --build` would. It covers every referenced project AND uses the strict-mode flags each one declares in its own tsconfig.  That matches what the docker build actually runs.
 
 # Remedy
 
 Use `tsc -b --noEmit` for any preflight / pre-commit / local-check invocation.  The `--noEmit` flag prevents the project from writing out `.tsbuildinfo` / dist artifacts; `-b` keeps the project-graph traversal.
 
 ```sh
-# WRONG — silent on referenced-project errors
+# WRONG, silent on referenced-project errors
 ./node_modules/.bin/tsc --noEmit
 
-# RIGHT — matches what the build does
+# RIGHT, matches what the build does
 ./node_modules/.bin/tsc -b --noEmit
 ```
 
@@ -39,7 +39,7 @@ const res = spawnSync(
 
 # Trade-off
 
-`tsc -b --noEmit` is slower than plain `--noEmit` — typically 2-3x (90 s vs 30 s on the example-app web SPA).  For deploy preflight that's a strict win (catches more errors).  For pre-commit hooks the overhead may matter; offer a `tsc -b --noEmit --incremental` mode that uses the `.tsbuildinfo` cache.
+`tsc -b --noEmit` is slower than plain `--noEmit`, typically 2-3x (90 s vs 30 s on the example-app web SPA).  For deploy preflight that's a strict win (catches more errors).  For pre-commit hooks the overhead may matter; offer a `tsc -b --noEmit --incremental` mode that uses the `.tsbuildinfo` cache.
 
 # How it slipped past
 
@@ -47,7 +47,7 @@ Most TypeScript guides default to `tsc --noEmit` for "fast typecheck" without me
 
 # Related
 
-- [[deploy-cost-ramp-preflight-first]] — preflight strategy.
+- [[deploy-cost-ramp-preflight-first]], preflight strategy.
 
 # Real-world hit
 

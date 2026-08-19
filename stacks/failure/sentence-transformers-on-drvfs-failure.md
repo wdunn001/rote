@@ -17,7 +17,7 @@ references: scripts/seed-design-patterns-and-technologies.py - see Ollama tech e
 - venv resolution kept claiming success while the package was partially installed
 
 # When to reuse
-- Never reuse this combo on drvfs.  Use Ollama nomic-embed-text as the embedding backend instead — sheds the 80MB torch dep entirely.
+- Never reuse this combo on drvfs.  Use Ollama nomic-embed-text as the embedding backend instead, which sheds the 80MB torch dep entirely.
 
 # When to avoid
 - Any pip install of large packages on drvfs filesystems.

@@ -1,18 +1,18 @@
 ---
 slug: small-model-for-priority-locale
-title: Used a small LLM (qwen2.5:7b) to translate the priority locale — output was garbled
+title: Used a small LLM (qwen2.5:7b) to translate the priority locale and the output was garbled
 hit_count: 1
-token_cost: high — a full re-translation pass on a bigger model + ~45 manual Claude corrections
+token_cost: high, a full re-translation pass on a bigger model + ~45 manual Claude corrections
 ---
 
 # Symptom
 
 Bulk-translated an i18n glossary (309 keys) into the priority locale (Ukrainian) on the cheap default delegate model `qwen2.5:7b`. The output had transliteration artifacts and outright wrong words in Cyrillic technical text:
 
-- `чорної skvazhyny` — *skvazhyna* = **borehole**, not "black box"
-- `годувальник` — = **breadwinner**, not "feed/stream"
-- `гекса` — = **hex**, not "heuristic" (евристична)
-- `джоystick`, `Необов'яzkove`, `informatsiya` — Latin letters spliced into Cyrillic words
+- `чорної skvazhyny`, *skvazhyna* = **borehole**, not "black box"
+- `годувальник` = **breadwinner**, not "feed/stream"
+- `гекса` = **hex**, not "heuristic" (евристична)
+- `джоystick`, `Необов'яzkove`, `informatsiya` all show Latin letters spliced into Cyrillic words
 - awkward gerund `літання` instead of `політ/польоту`
 
 # Root cause

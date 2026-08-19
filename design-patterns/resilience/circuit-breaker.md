@@ -14,11 +14,11 @@ The cost of repeatedly attempting calls during an outage is high (latency, resou
 You want fast failure during outages instead of slow timeouts.
 
 # When NOT to use
-Internal calls in a single process — circuit breakers add latency tracking + state machine; not worth it.
+Internal calls in a single process. Circuit breakers add latency tracking + state machine; not worth it.
 
-Backends that are designed to handle infinite retries (idempotent enqueues) — just retry.
+Backends that are designed to handle infinite retries (idempotent enqueues). Just retry.
 
-You haven't tuned the threshold + cooldown — defaults often produce more harm than good.
+You haven't tuned the threshold + cooldown. Defaults often produce more harm than good.
 
 # Structure
 States: Closed (calls flow), Open (calls fast-fail), Half-Open (a probe call decides whether to close).  Threshold = consecutive failures or failure rate.  Cooldown = how long Open lasts.

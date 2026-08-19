@@ -12,9 +12,9 @@ Multiple variants follow the same overall flow but differ in specific steps: a d
 You want to enforce the OVERALL sequence while letting subclasses customize steps.
 
 # When NOT to use
-Subclasses end up overriding most steps — use strategy instead.
+Subclasses end up overriding most steps. Use strategy instead.
 
-The 'algorithm' is one line and the override is the whole point — just use polymorphism directly.
+The 'algorithm' is one line and the override is the whole point. Just use polymorphism directly.
 
 # Structure
 Base class defines a non-virtual template method that calls protected virtual primitives.  Subclasses override the primitives but not the template.

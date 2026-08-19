@@ -16,7 +16,7 @@ Multiple projections need to be derivable from the same source of truth.
 # When NOT to use
 The current state IS what matters and the history is uninteresting.
 
-You can't bound the event volume (millions per second with no archival path) — event sourcing under load needs serious infra.
+You can't bound the event volume (millions per second with no archival path). Event sourcing under load needs serious infra.
 
 # Structure
 Append-only event log.  Aggregates rebuild from events.  Snapshots accelerate replay.  Projections subscribe to the log and materialize views.

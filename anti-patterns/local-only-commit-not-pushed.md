@@ -2,7 +2,7 @@
 slug: local-only-commit-not-pushed
 title: Claiming work is "done" when it's only committed locally
 hit_count: 8
-token_cost: critical — user discovers nothing shipped, asks "where is X?", trust eroded
+token_cost: critical, user discovers nothing shipped, asks "where is X?", trust eroded
 ---
 
 # Symptom
@@ -33,7 +33,7 @@ rote run verify-deploy --url https://app.acmefpv.com --expect-string "new-featur
 
 # Detection
 
-Anytime you're about to type "shipped" / "deployed" / "done" — check:
+Anytime you're about to type "shipped" / "deployed" / "done", check:
 - Has `git push` run successfully since the last commit?
 - Has `npm run deploy` run?
 - Has the deployed artifact been verified?

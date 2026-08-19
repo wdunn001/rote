@@ -14,18 +14,18 @@ Domain event broadcasting: a sale completed → notify inventory, billing, audit
 Realtime subscriptions: a SignalR hub broadcasts to N clients; an MQTT topic publishes to N subscribers.
 
 # When NOT to use
-The notification is a one-shot — use a callback / Promise.
+The notification is a one-shot. Use a callback / Promise.
 
-Observers form cycles or need ordered execution — use a proper event-bus with ordering guarantees.
+Observers form cycles or need ordered execution. Use a proper event-bus with ordering guarantees.
 
-You actually need persistent subscription semantics across crashes — use queue-based / outbox patterns.
+You actually need persistent subscription semantics across crashes. Use queue-based / outbox patterns.
 
 # Structure
 Subject maintains a list of Observers.  Observers register / unregister.  On state change, Subject calls Update on each observer.
 
 # Example
 ```csharp
-// SignalR is observer at scale — Update = SendAsync.
+// SignalR is observer at scale, Update = SendAsync.
 public class TakActivityHub : Hub {
     public async Task SubscribeCompany(string companyId) {
         await Groups.AddToGroupAsync(Context.ConnectionId, $"company:{companyId}");

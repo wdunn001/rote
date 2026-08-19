@@ -16,9 +16,9 @@ sed -i 's/<pattern>/<replacement>/g' <file>
 Quick in-place text substitution in one file. For multi-file, prefer the library's `find-replace-tree.sh` (handles backups, gitignore, etc.).
 
 # When NOT to use
-Codebase-wide replace — use `scripts/find-replace-tree.sh` (backup + glob filter + dry-run).
-Structural edits — use a real parser (Tree-sitter, AST tools).
-Irreversible edits without backup — at minimum add `.bak` suffix: `sed -i.bak 's/.../.../'`.
+Codebase-wide replace, use `scripts/find-replace-tree.sh` (backup + glob filter + dry-run).
+Structural edits, use a real parser (Tree-sitter, AST tools).
+Irreversible edits without backup, at minimum add `.bak` suffix: `sed -i.bak 's/.../.../'`.
 
 # Gotchas
 - macOS (BSD sed) REQUIRES an extension after `-i`: `sed -i '' 's/.../.../' file`. GNU sed (linux): `sed -i 's/.../.../' file`. Use `sed -i.bak 's/.../.../'` for portable code (works on both, produces .bak files you can delete).

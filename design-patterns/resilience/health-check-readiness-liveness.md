@@ -14,14 +14,14 @@ Multi-dependency apps where you need to distinguish 'I crashed' from 'broker is 
 Operations needs a fast probe for monitoring + a deep probe for diagnostics.
 
 # When NOT to use
-Single static binary on a single host with no orchestration — overhead.
+Single static binary on a single host with no orchestration, overhead.
 
-Probes that hit downstream services synchronously without timeout — the probe becomes a DoS vector.
+Probes that hit downstream services synchronously without timeout. The probe becomes a DoS vector.
 
 # Structure
 Liveness (/health/live): is the process running and serving HTTP at all?  Restart if not.
 Readiness (/health/ready): all hard dependencies up?  Route traffic if so.  Returns 'degraded' (200) when soft deps are down but service still useful.
-Details (/health/details): full diagnostic — per-dep timings, last error, breaker state.  Auth-gated.
+Details (/health/details): full diagnostic, per-dep timings, last error, breaker state.  Auth-gated.
 
 # Example
 ```csharp
@@ -35,4 +35,4 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = c => c
 ```
 
 # Relationships
-Pairs with circuit-breaker (breaker state surfaces in /details).  Foundation of platform-driven self-healing.  Acme uses this — see CLAUDE.md Health endpoints table.
+Pairs with circuit-breaker (breaker state surfaces in /details).  Foundation of platform-driven self-healing.  Acme uses this. See CLAUDE.md Health endpoints table.

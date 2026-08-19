@@ -13,9 +13,9 @@ The rote uses this shape for /scripts/search, /anti-patterns/search,
 /design-patterns/search, /technologies/search.
 
 # When NOT to use
-Corpus > 1M rows — use a dedicated vector DB (Qdrant, Milvus).
+Corpus > 1M rows. Use a dedicated vector DB (Qdrant, Milvus).
 
-You need hybrid search (BM25 + vector) — sqlite-vec doesn't ship it built-in.
+You need hybrid search (BM25 + vector). sqlite-vec doesn't ship it built-in.
 
 # Placeholders
 - RESOURCE: snake_case resource name (example: anti_patterns)

@@ -1,6 +1,6 @@
 ---
 slug: bm25-lexical-rank
-name: BM25 lexical ranker — dependency-free keyword search fallback
+name: BM25 lexical ranker, dependency-free keyword search fallback
 language: python
 applies_patterns: degraded-mode-source-of-truth-sidecar
 applies_technologies:
@@ -11,7 +11,7 @@ references: rote server/app_lexical.py
 You need keyword search/ranking but cannot ship an embedding model (locked-down env, no GPU, no network) or want a fallback when the vector backend is down. Corpus is small (dozens-to-low-thousands of rows) so a full in-Python scan per query is trivially fast.
 
 # When NOT to use
-Large corpora (10k+ docs) where you need an inverted index — use a real engine (sqlite FTS5, Tantivy, Elasticsearch). Semantic/synonym matching matters more than keyword overlap — then you genuinely need embeddings.
+Large corpora (10k+ docs) where you need an inverted index. Use a real engine (sqlite FTS5, Tantivy, Elasticsearch). Semantic/synonym matching matters more than keyword overlap. Then you genuinely need embeddings.
 
 # Placeholders
 - QUERY: the search string
@@ -29,7 +29,7 @@ def _tok(s): return _TOK_RE.findall((s or "").lower())
 
 def bm25(QUERY, DOCS, LIMIT, k1=1.5, b=0.75):
     """Return [(doc_index, distance)] best-first. distance in [0,1], 0 = best,
-    1.0 = no term overlap — shaped like a cosine distance so callers that
+    1.0 = no term overlap, shaped like a cosine distance so callers that
     expect 'smaller = better' work unchanged."""
     q = _tok(QUERY)
     toks = [_tok(d) for d in DOCS]
@@ -56,5 +56,5 @@ def bm25(QUERY, DOCS, LIMIT, k1=1.5, b=0.75):
 ```
 
 # Notes
-- Weight name/title into the blob (and split kebab/snake to words) so identifier matches rank — `f"{name} {name.replace('-',' ').replace('_',' ')} {purpose}"`.
+- Weight name/title into the blob (and split kebab/snake to words) so identifier matches rank, `f"{name} {name.replace('-',' ').replace('_',' ')} {purpose}"`.
 - df is computed over the candidate set each call (no persistent index), which is what keeps it dependency-free.

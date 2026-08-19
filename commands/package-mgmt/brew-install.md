@@ -16,7 +16,7 @@ brew install <formula> [<formula>...]
 Install CLI tools and libraries on macOS.
 
 # When NOT to use
-GUI apps — use `brew install --cask <cask>` instead. System Python packages — use pyenv / asdf / nix.
+GUI apps, use `brew install --cask <cask>` instead. System Python packages. Use pyenv / asdf / nix.
 
 # Gotchas
 - Homebrew updates ALL formulas during `brew update`; the install command no longer auto-runs update (it used to). Run `brew update` first if you want the latest formula.

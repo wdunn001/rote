@@ -26,7 +26,7 @@ Or point pip at your local index (e.g. a devpi / Nexus / Artifactory mirror)
 with `PIP_INDEX_URL`. `server/start.sh` does the venv + install for you; it
 installs only the core by default when embeddings are handled elsewhere (below).
 
-## 2. Embeddings (offline) — pick one
+## 2. Embeddings (offline), pick one
 
 Semantic search needs a vector for each query. Rote has two backends:
 

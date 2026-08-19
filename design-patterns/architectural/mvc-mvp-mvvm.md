@@ -15,18 +15,18 @@ Any non-trivial UI app: web, mobile, desktop.  Picking the variant depends on th
 The View is dumb (renders), the Model is the domain, the middle thing (Controller/Presenter/ViewModel) wires user input to model changes.
 
 # When NOT to use
-A single-screen tool — the layering is overhead.
+A single-screen tool, the layering is overhead.
 
-The 'controller' has become a god-class — split into multiple controllers/presenters by use case.
+The 'controller' has become a god-class. Split into multiple controllers/presenters by use case.
 
-You're using React or modern reactive UIs where the model is reactive state (Redux store, signals) and 'controller' is just event handlers — the labels stop helping; embrace your framework's idioms.
+You're using React or modern reactive UIs where the model is reactive state (Redux store, signals) and 'controller' is just event handlers. The labels stop helping; embrace your framework's idioms.
 
 # Structure
 Model = data + business rules.  View = rendering.  Controller/Presenter/ViewModel = the glue: takes user input, calls Model, presents Model state to the View.
 
 # Example
 ```typescript
-// Modern MVVM-ish React with TanStack Query — the 'ViewModel' is the hook
+// Modern MVVM-ish React with TanStack Query. The 'ViewModel' is the hook
 function useFleetCockpit(fleetId: FleetId) {
   const { data: fleet } = useQuery({ queryKey: ['fleet', fleetId], queryFn: () => api.getFleet(fleetId) });
   const issue = useMutation({ mutationFn: (cmd: FleetCommand) => api.issueFleetCommand(fleetId, cmd) });

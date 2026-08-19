@@ -16,10 +16,10 @@ docker system prune -af --volumes
 Reclaim disk space on a dev machine that's accumulated stopped containers, unused images, untagged dangling images, and abandoned volumes.
 
 # When NOT to use
-Production — almost certainly deletes things you care about. Run with smaller subcommands (`docker image prune`, `docker container prune`) and read the prompt first.
+Production, almost certainly deletes things you care about. Run with smaller subcommands (`docker image prune`, `docker container prune`) and read the prompt first.
 
 # Gotchas
-- `-a` removes ALL unused images (not just dangling) — VERY aggressive.
+- `-a` removes ALL unused images (not just dangling), VERY aggressive.
 - `--volumes` removes anonymous volumes too. If you have data in a volume but no running container is attached, it's gone.
 - Always inspect first with `docker system df` to see what's eating space.
 - Per-resource variants are safer: `docker image prune -a`, `docker container prune`, `docker volume prune` (NEVER `--volumes` on prod).

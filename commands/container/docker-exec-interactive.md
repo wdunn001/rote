@@ -13,14 +13,14 @@ docker exec -it <container> bash   # or sh / zsh
 ```
 
 # When to use
-Debugging a running container — inspect filesystem, env vars, processes.
+Debugging a running container. Inspect filesystem, env vars, processes.
 
 # When NOT to use
-Persistent changes — they're lost on container recreate. Use a volume + edit on the host.
-Production debugging — exec'ing into prod isn't an audit trail. Use logs + a sidecar pattern.
+Persistent changes, they're lost on container recreate. Use a volume + edit on the host.
+Production debugging, exec'ing into prod isn't an audit trail. Use logs + a sidecar pattern.
 
 # Gotchas
-- `bash` isn't installed in alpine-based images — use `sh`.
+- `bash` isn't installed in alpine-based images. Use `sh`.
 - `-it` (interactive + TTY) is what you want for a shell; `-i` alone for piping data; `-t` alone for log-only.
 - Container must be RUNNING. To debug a crashed container, use `docker logs` or `docker run --rm --entrypoint sh <image>`.
 

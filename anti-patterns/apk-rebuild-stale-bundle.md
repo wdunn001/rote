@@ -1,8 +1,8 @@
 ---
 slug: apk-rebuild-stale-bundle
-title: Gradle skips bundleReleaseJsAndAssets — APK ships stale Hermes bytecode
+title: Gradle skips bundleReleaseJsAndAssets, APK ships stale Hermes bytecode
 hit_count: 1
-token_cost: high — full APK build wasted, change appears not to have shipped, hours of "why isn't this taking effect"
+token_cost: high, full APK build wasted, change appears not to have shipped, hours of "why isn't this taking effect"
 ---
 
 # Symptom
@@ -11,7 +11,7 @@ You edit JS/TS in `apps/companion/`, run `eas build` or `./gradlew assembleRelea
 
 # Root cause
 
-Gradle's `bundleReleaseJsAndAssets` task is incremental and the inputs hash misses some changes (especially when only sub-package source changed but the touched workspace package's `package.json` didn't bump). The merged assets directory still contains the prior bundle, so the APK packs the stale bytecode. Hermes bytecode is also not greppable as strings — confirming "is the change in here" via `grep` on the bundle is unreliable.
+Gradle's `bundleReleaseJsAndAssets` task is incremental and the inputs hash misses some changes (especially when only sub-package source changed but the touched workspace package's `package.json` didn't bump). The merged assets directory still contains the prior bundle, so the APK packs the stale bytecode. Hermes bytecode is also not greppable as strings, confirming "is the change in here" via `grep` on the bundle is unreliable.
 
 # Remedy (deterministic)
 
@@ -26,7 +26,7 @@ rm -rf ../node_modules/.cache
 ./gradlew clean assembleRelease
 ```
 
-To **verify** the change is actually in the new bundle, do NOT grep the bundle — grep the **sourcemap** instead:
+To **verify** the change is actually in the new bundle, do NOT grep the bundle. Grep the **sourcemap** instead:
 
 ```bash
 grep -c "MY_NEW_STRING" android/app/build/generated/sourcemaps/react/release/index.android.bundle.map

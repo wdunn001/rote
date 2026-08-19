@@ -3,7 +3,7 @@ name: design-patterns
 description: Use this when (and BEFORE) you design a class hierarchy, service layer, resilience layer, offline pipeline, AI-augmented feature, or write boilerplate code. Returns proven patterns + matching technologies + parameterized code snippets + recorded stack outcomes from a curated catalog so you don't reinvent from mediocre training-data code. Catalog has cautionary entries (don't use Azure Service Bus because we need offline) so wrong choices are visible. Record new patterns/tech/stacks back.
 ---
 
-# Design Patterns + Technologies — "Library Before Training Data"
+# Design Patterns + Technologies, "Library Before Training Data"
 
 Training-data code is often mediocre. The model has seen Singleton implementations done a hundred wrong ways, "circuit breakers" that don't break, "RAG pipelines" that hand-roll embedding loops, "offline-first" apps that aren't. The two local catalogs in this library are the antidote: a curated `design-patterns` catalog of GOOD patterns + a `technologies` catalog of concrete tools mapped to those patterns with explicit "when to use, when NOT, why."
 
@@ -13,10 +13,10 @@ Training-data code is often mediocre. The model has seen Singleton implementatio
 
 - About to write a new class hierarchy (will you reach for Singleton / Strategy / Factory / Composite?)
 - About to design a service layer / data access layer / application boundary
-- About to add resilience (retry, breaker, bulkhead, timeout) — order matters; the catalog has the right order
+- About to add resilience (retry, breaker, bulkhead, timeout). Order matters; the catalog has the right order
 - About to design an offline-survivable pipeline (queue, outbox, CRDT, sync engine)
 - About to add an AI feature (RAG, ReAct, tool-use, structured output, semantic search)
-- About to pick a tech (broker, real-time transport, vector DB, identity provider) — the catalog has the constraints that rule out wrong choices (no Azure Service Bus, no cloud-only stuff)
+- About to pick a tech (broker, real-time transport, vector DB, identity provider). The catalog has the constraints that rule out wrong choices (no Azure Service Bus, no cloud-only stuff)
 
 ## When NOT to invoke
 
@@ -32,7 +32,7 @@ Training-data code is often mediocre. The model has seen Singleton implementatio
 4. **Cite the pattern / snippet in code comments.** A class that implements Strategy should say `// Strategy for X` in its header. A method assembled from `snippet/polly-named-policy-registration` should mention the slug. This is how the next reader finds the catalog entry.
 5. **Use `dp use` / `tech use` / `snippet use` / `stack use`** when you actually apply something. Tracks what's load-bearing vs documented-only.
 6. **Cross-reference the technology catalog** for "what to implement this with." Patterns answer "what to build"; technologies answer "with what"; snippets answer "how exactly"; stacks answer "have we tried this combo and what came of it."
-7. **Don't pick a technology by name recognition.** Search by your CONSTRAINTS (offline-capable, self-hostable, open-source). The catalog flags cautionary entries (Azure Service Bus — cloud-only, ruled out for Acme) AND the stacks catalog has a record (`azure-service-bus-for-offline-considered-and-rejected`) explaining why.
+7. **Don't pick a technology by name recognition.** Search by your CONSTRAINTS (offline-capable, self-hostable, open-source). The catalog flags cautionary entries (Azure Service Bus, cloud-only, ruled out for Acme) AND the stacks catalog has a record (`azure-service-bus-for-offline-considered-and-rejected`) explaining why.
 
 ## Decision flow
 
@@ -58,23 +58,23 @@ about to write pattern-shaped code?
 
 ### Design Patterns (5 categories)
 
-- **classical** — GoF + adjacent: singleton, factory-method, abstract-factory, builder, strategy, observer, decorator, adapter, composite, chain-of-responsibility, command, template-method
-- **architectural** — clean-architecture, hexagonal-ports-adapters, repository-pattern, service-layer, cqrs, event-sourcing, domain-driven-aggregate, mvc-mvp-mvvm
-- **resilience** — circuit-breaker, retry-with-exponential-backoff-jitter, bulkhead, timeout-and-deadline, fallback, health-check-readiness-liveness, idempotency-token, queue-based-load-leveling
-- **offline** — local-first-architecture, outbox-pattern, crdt, offline-queue-bulkhead, optimistic-ui, eventually-consistent-replication
-- **ai** — rag-retrieval-augmented-generation, react-reasoning-and-acting, tool-use-function-calling, structured-output-with-schema, semantic-search-with-embeddings, mcp-aggregator-proxy, skill-based-prompting, prompt-caching, multi-agent-orchestration
+- **classical**, GoF + adjacent: singleton, factory-method, abstract-factory, builder, strategy, observer, decorator, adapter, composite, chain-of-responsibility, command, template-method
+- **architectural**, clean-architecture, hexagonal-ports-adapters, repository-pattern, service-layer, cqrs, event-sourcing, domain-driven-aggregate, mvc-mvp-mvvm
+- **resilience**, circuit-breaker, retry-with-exponential-backoff-jitter, bulkhead, timeout-and-deadline, fallback, health-check-readiness-liveness, idempotency-token, queue-based-load-leveling
+- **offline**, local-first-architecture, outbox-pattern, crdt, offline-queue-bulkhead, optimistic-ui, eventually-consistent-replication
+- **ai**, rag-retrieval-augmented-generation, react-reasoning-and-acting, tool-use-function-calling, structured-output-with-schema, semantic-search-with-embeddings, mcp-aggregator-proxy, skill-based-prompting, prompt-caching, multi-agent-orchestration
 
 ### Technologies (mapped to patterns + tagged)
 
-- **messaging** — rabbitmq, mosquitto, azure-service-bus (← cautionary: no offline)
-- **realtime** — signalr, socket-io, webrtc
-- **resilience-library** — polly
-- **ai-infrastructure** — ollama, sglang
-- **vector-db** — sqlite-vec
-- **database** — postgresql, sqlite
-- **identity** — authentik
-- **mcp-infrastructure** — metamcp
-- **orchestration** — docker-compose
+- **messaging**, rabbitmq, mosquitto, azure-service-bus (← cautionary: no offline)
+- **realtime**, signalr, socket-io, webrtc
+- **resilience-library**, polly
+- **ai-infrastructure**, ollama, sglang
+- **vector-db**, sqlite-vec
+- **database**, postgresql, sqlite
+- **identity**, authentik
+- **mcp-infrastructure**, metamcp
+- **orchestration**, docker-compose
 
 Tags include: `offline-capable`, `self-hosted`, `cloud-only`, `vendor-locked`, `open-source`.
 
@@ -168,7 +168,7 @@ The API auto-indexes on next list/search. Re-seed via `scripts/seed-design-patte
 
 ## Cross-reference
 
-- [[rote]] — sibling skill for reusable scripts
-- [[secret-handling]] — don't put secret values in tool calls; never in pattern examples either
-- [[chronicle]] — record patterns applied in §3 of post-mortems so the catalog grows
+- [[rote]], sibling skill for reusable scripts
+- [[secret-handling]], don't put secret values in tool calls; never in pattern examples either
+- [[chronicle]], record patterns applied in §3 of post-mortems so the catalog grows
 - See anti-patterns `tmp-script-one-shot` and `code-rewrite-line-by-line` for the failure modes this skill prevents on the SCRIPT side; the pattern catalog prevents the same on the DESIGN side.

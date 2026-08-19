@@ -1,9 +1,9 @@
 ---
 name: secret-handling
-description: ALWAYS invoke before reading, writing, or moving a secret value (API key, private key PEM, database password, OAuth client secret, OIDC ID-token, JWT signing key, bearer token, etc.). Routes secrets through the local Rote API so the secret BYTES never enter Claude's reasoning context. Refuses to handle a secret directly — points the caller at the deterministic, auditable injection path.
+description: ALWAYS invoke before reading, writing, or moving a secret value (API key, private key PEM, database password, OAuth client secret, OIDC ID-token, JWT signing key, bearer token, etc.). Routes secrets through the local Rote API so the secret BYTES never enter Claude's reasoning context. Refuses to handle a secret directly, points the caller at the deterministic, auditable injection path.
 ---
 
-# Secret Handling — Out-of-Band Vault Guard Skill
+# Secret Handling, Out-of-Band Vault Guard Skill
 
 The single rule: **secret values must never enter Claude's reasoning context, transcript, or tool I/O stream.** Claude knows secret NAMES; the local server knows secret VALUES; the two never cross.
 
@@ -29,7 +29,7 @@ The single rule: **secret values must never enter Claude's reasoning context, tr
 2. **NEVER** echo, cat, print, or otherwise emit a secret to stdout where Claude can see it.
 3. **NEVER** ask the user to paste a secret into the chat.
 4. **NEVER** base64 / hex / json-encode a secret in conversation. Always do that server-side.
-5. The above rules ALSO apply to "fragments" — partial keys, key thumbprints, key fingerprints — anything that uniquely identifies the credential.
+5. The above rules ALSO apply to "fragments", partial keys, key thumbprints, key fingerprints, anything that uniquely identifies the credential.
 
 ## Decision flow
 
@@ -68,7 +68,7 @@ rote vault inject \
 What happens server-side:
 1. Server reads the vault JSON
 2. Renders a labeled block `# >>> deploy-secrets >>> ... # <<< deploy-secrets <<<` into the target `.env`, replacing any prior block with the same label (idempotent)
-3. Returns a summary: `wrote: [{name, bytes}], missing: [names]` — names + sizes only, never bytes
+3. Returns a summary: `wrote: [{name, bytes}], missing: [names]`, names + sizes only, never bytes
 
 If any key is missing, the script exits 3 and the response includes `missing: [...]`. That's the signal to ask the user to add the missing key to the vault (NOT to ask them to paste it in chat).
 
@@ -94,7 +94,7 @@ unset VAL
 
 Or simpler: edit the file in vim and save it.
 
-## Detection — am I about to break a rule?
+## Detection, am I about to break a rule?
 
 Before any of these tool calls, ask yourself "does this involve a secret value?":
 
@@ -123,6 +123,6 @@ rote audit 100
 
 ## Cross-reference
 
-- [[rote]] — discovery + execution of scripts including the vault scripts
-- [[chronicle]] — should record any "almost wrote a secret to context" near-misses as an anti-pattern
+- [[rote]], discovery + execution of scripts including the vault scripts
+- [[chronicle]], should record any "almost wrote a secret to context" near-misses as an anti-pattern
 - See anti-pattern `llm-writes-secrets-into-env` for the failure mode this skill prevents

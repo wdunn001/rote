@@ -2,7 +2,7 @@
 slug: transport-named-by-protocol
 title: Naming a transport after the protocol it carries (e.g. MavlinkTransport instead of BleTransport)
 hit_count: 4
-token_cost: medium — locks the design; future protocol changes require renaming + grepping; protocol negotiation becomes impossible
+token_cost: medium, locks the design; future protocol changes require renaming + grepping; protocol negotiation becomes impossible
 ---
 
 # Symptom
@@ -11,10 +11,10 @@ You see types like `MavlinkBleTransport`, `MspWifiTransport`, `BleGattMavlinkLin
 
 # Root cause
 
-Transports (BLE, WiFi-TCP, USB, MQTT, multicast UDP) carry bytes. Protocols (MAVLink, MSP, CoT, JSON ingest) are the structure of those bytes. The same firmware/device often supports multiple protocols on the same transport — protocol gets **negotiated at runtime** (firmware family detection, capability handshake). Hardcoding the protocol into the transport's name means:
+Transports (BLE, WiFi-TCP, USB, MQTT, multicast UDP) carry bytes. Protocols (MAVLink, MSP, CoT, JSON ingest) are the structure of those bytes. The same firmware/device often supports multiple protocols on the same transport. Protocol gets **negotiated at runtime** (firmware family detection, capability handshake). Hardcoding the protocol into the transport's name means:
 
 1. Adding a new protocol on the same transport requires creating a parallel class and grep-renaming.
-2. Negotiating protocol at runtime becomes awkward — the type name lies.
+2. Negotiating protocol at runtime becomes awkward. The type name lies.
 3. Tests / mocks proliferate (`MockMavlinkBleTransport`, `MockMspBleTransport`).
 
 # Remedy

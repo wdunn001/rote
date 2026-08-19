@@ -8,7 +8,7 @@ references: https://goauthentik.io/
 ---
 
 # When to use
-You need a self-hosted OIDC / SAML IdP — Authentik handles both.
+You need a self-hosted OIDC / SAML IdP. Authentik handles both.
 
 You want a clean admin UI for users, applications, groups, policies.
 
@@ -19,7 +19,7 @@ Acme uses Authentik for OIDC across the SPA, companion, shop, marketing.
 # When NOT to use
 You're cloud-only on Azure / AWS / GCP and want a managed IdP (Entra ID / Cognito / Identity Platform).
 
-Your auth needs are tiny — a simple JWT issuer is enough.
+Your auth needs are tiny. A simple JWT issuer is enough.
 
 Strict regulatory environment where Keycloak's Red Hat backing matters.
 

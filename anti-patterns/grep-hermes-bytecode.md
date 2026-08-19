@@ -2,7 +2,7 @@
 slug: grep-hermes-bytecode
 title: Grep on Hermes bytecode bundle returns 0 matches even when the string is there
 hit_count: 1
-token_cost: medium — wasted debugging cycle, can compound with [[apk-rebuild-stale-bundle]]
+token_cost: medium, wasted debugging cycle, can compound with [[apk-rebuild-stale-bundle]]
 ---
 
 # Symptom

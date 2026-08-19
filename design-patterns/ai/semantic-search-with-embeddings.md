@@ -14,11 +14,11 @@ You want 'similar to X' as a query type, not just exact match.
 You're building a RAG retrieval step.
 
 # When NOT to use
-Exact keyword match is what the user means — full-text search is faster + cheaper.
+Exact keyword match is what the user means. Full-text search is faster + cheaper.
 
 The corpus is so small embeddings are overkill.
 
-You can't keep the index in sync with the corpus — semantic search returns plausibly-wrong results.
+You can't keep the index in sync with the corpus. Semantic search returns plausibly-wrong results.
 
 # Structure
 Embed each document → store vector + metadata.  Embed query → cosine distance → top-k.  Optional: rerank with a cross-encoder for better precision on the top results.

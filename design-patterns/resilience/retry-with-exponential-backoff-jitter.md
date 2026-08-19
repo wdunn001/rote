@@ -14,13 +14,13 @@ The operation is idempotent OR you have an idempotency token.
 The downstream can absorb retries (you're not making the problem worse).
 
 # When NOT to use
-The operation isn't idempotent and there's no token — retrying double-charges, double-sends.
+The operation isn't idempotent and there's no token. Retrying double-charges, double-sends.
 
 You're retrying inside a retry (compounding exponentials = surprise outage).
 
-The failure is permanent (4xx, schema mismatch) — don't retry 4xx.
+The failure is permanent (4xx, schema mismatch). Don't retry 4xx.
 
-You're not jittering — synchronized retries trigger thundering herd.
+You're not jittering. Synchronized retries trigger thundering herd.
 
 # Structure
 Attempt → on transient failure, wait base * 2^attempt + random(0, jitter) → retry up to max attempts.  Cap the max delay.  Distinguish transient vs permanent failures.

@@ -17,12 +17,12 @@ Fix ownership after `sudo`-running something that wrote files as root.
 
 # When NOT to use
 On a shared system where you might own files you shouldn't.
-Drvfs / Windows mount — chown is a no-op there.
+Drvfs / Windows mount, chown is a no-op there.
 
 # Gotchas
 - `chown -R user:group` changes BOTH owner and group. Omit `:group` to keep group as-is.
 - `chown -R user .` follows symlinks by default. Use `-h` to operate on the link itself, not its target. Add `-P` to NEVER follow.
-- If you got 'permission denied' on chown, you're not root — wrap in sudo.
+- If you got 'permission denied' on chown, you're not root. Wrap in sudo.
 - Common after-pip: `sudo chown -R $(whoami) ~/.npm` or `~/.cache/pip` if a sudo install dropped root-owned files.
 
 # Flags

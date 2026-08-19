@@ -1,6 +1,6 @@
 ---
 slug: platform-aware-storage-adapter
-name: Platform-aware adapter — thin shim that re-exports the same API across platforms
+name: Platform-aware adapter, thin shim that re-exports the same API across platforms
 category: architectural
 intent: Hide platform-specific storage / sensor / I/O differences behind a stable API so the rest of the codebase can stay portable
 references: |
@@ -65,7 +65,7 @@ export async function deleteItemAsync(key: string, options?: SecureStoreOptions)
 }
 ```
 
-Then enforce the rule with a grep — direct imports of the upstream module from anywhere except the adapter are bugs.
+Then enforce the rule with a grep. Direct imports of the upstream module from anywhere except the adapter are bugs.
 
 # Migration
 
@@ -80,8 +80,8 @@ Document the trade-off in the adapter file's banner: what's lost on the fallback
 
 # Related
 
-- [[expo-secure-store-web-noop]] — the bug class this pattern fixes.
-- [[expo-module-web-noop-trap]] — broader audit recommendation.
+- [[expo-secure-store-web-noop]], the bug class this pattern fixes.
+- [[expo-module-web-noop-trap]], broader audit recommendation.
 
 # Real-world hit
 

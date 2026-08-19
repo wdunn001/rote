@@ -10,7 +10,7 @@ Local persistent HTTP backend for the Claude `chronicle`, `rote`, and `secret-ha
 
 First run sets up `.venv` and installs `requirements.txt` (~80 MB for the embedding model; one-time). Subsequent runs are instant.
 
-Default bind: `127.0.0.1:5572`. **Do not expose to other interfaces** without adding auth — vault endpoints read local secrets.
+Default bind: `127.0.0.1:5572`. **Do not expose to other interfaces** without adding auth. Vault endpoints read local secrets.
 
 Test:
 
@@ -37,7 +37,7 @@ curl http://127.0.0.1:5572/healthz
 | `POST` | `/vault/has` | `{"keys": ["A", "B"]}` → `{"exists": {"A": true, "B": false}}` |
 | `POST` | `/vault/inject` | `{"env_file": "/abs/path/.env", "keys": ["KEY1", "KEY2"], "block_label": "..."}` → writes a labeled block to the target `.env`. Replaces prior block of the same label atomically. Response reports byte counts, not values. |
 
-The `block_label` mechanism means re-running the same inject call is a no-op state-wise — the block is just rewritten in-place. Multiple distinct labels can coexist in one `.env`.
+The `block_label` mechanism means re-running the same inject call is a no-op state-wise. The block is just rewritten in-place. Multiple distinct labels can coexist in one `.env`.
 
 ### Anti-patterns
 
@@ -51,17 +51,17 @@ The `block_label` mechanism means re-running the same inject call is a no-op sta
 
 | Method | Path | Purpose |
 |---|---|---|
-| `GET` | `/audit?limit=50` | Recent audit events. Payloads contain key NAMES + counts only — never bytes. |
+| `GET` | `/audit?limit=50` | Recent audit events. Payloads contain key NAMES + counts only, never bytes. |
 
 ## Data model
 
 Single SQLite file at `data/audit.sqlite`:
 
-- `audit_log` — append-only event log
-- `anti_patterns` — slug-keyed catalog
-- `anti_patterns_vec` — sqlite-vec virtual table, rowid joined to `anti_patterns`
-- `script_index` — path-keyed cache of frontmatter + mtime
-- `script_vec` — sqlite-vec virtual table, rowid joined to `script_index`
+- `audit_log`, append-only event log
+- `anti_patterns`, slug-keyed catalog
+- `anti_patterns_vec`, sqlite-vec virtual table, rowid joined to `anti_patterns`
+- `script_index`, path-keyed cache of frontmatter + mtime
+- `script_vec`, sqlite-vec virtual table, rowid joined to `script_index`
 
 Embeddings are 384-dim float32 from `all-MiniLM-L6-v2`. Stored as the byte buffer sqlite-vec wants (`struct.pack("384f", ...)`).
 
@@ -69,7 +69,7 @@ Embeddings are 384-dim float32 from `all-MiniLM-L6-v2`. Stored as the byte buffe
 
 - **Restart safety**: state is in the SQLite file + the on-disk scripts + the vault JSON. Restart the uvicorn process whenever, no shutdown ceremony needed.
 - **Backups**: `cp data/audit.sqlite data/audit.sqlite.$(date +%Y%m%d)`. The vault JSON is the other valuable file; back that up separately.
-- **Reset embeddings**: `DELETE FROM script_vec; DELETE FROM anti_patterns_vec;` — next list/search re-embeds everything.
+- **Reset embeddings**: `DELETE FROM script_vec; DELETE FROM anti_patterns_vec;`, next list/search re-embeds everything.
 - **Reset audit**: `DELETE FROM audit_log;` if it grows too big. We don't auto-prune.
 - **Different embedding model**: change `EMBED_MODEL_NAME` + `EMBED_DIM` in `app.py`, then reset the vec tables.
 

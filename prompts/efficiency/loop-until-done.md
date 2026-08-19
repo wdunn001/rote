@@ -12,7 +12,7 @@ Work on ${GOAL} in a closed loop until it is genuinely done, not until it looks 
 Each iteration:
 1. State the single next concrete step and why it's next.
 2. Do it.
-3. VERIFY the result with an objective check (run it, test it, diff it, read the output) — not by asserting success.
+3. VERIFY the result with an objective check (run it, test it, diff it, read the output), not by asserting success.
 4. If the check fails, diagnose the root cause before retrying; do not retry the same action unchanged.
 5. Update a short running checklist of what's done / what remains.
 

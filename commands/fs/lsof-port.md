@@ -14,15 +14,15 @@ lsof -i :<port> -sTCP:LISTEN  # just listeners
 ```
 
 # When to use
-'Port 5572 is already in use' — find what's bound. Debug 'why can't I connect to X'.
+'Port 5572 is already in use', find what's bound. Debug 'why can't I connect to X'.
 
 # When NOT to use
-Production at scale — use `ss` (faster, kernel-native). `lsof` enumerates ALL open files first.
+Production at scale, use `ss` (faster, kernel-native). `lsof` enumerates ALL open files first.
 
 # Gotchas
 - Without root, `lsof` only shows YOUR processes. Use `sudo lsof -i :PORT` for system-wide.
 - `lsof -i :PORT` returns BOTH listeners and connections to that port. Use `-sTCP:LISTEN` to filter to just listeners.
-- On macOS / WSL, the docker-internal-port might not show via lsof — use `docker ps` for those.
+- On macOS / WSL, the docker-internal-port might not show via lsof. Use `docker ps` for those.
 
 # Flags
 - `-i :PORT`: by network port

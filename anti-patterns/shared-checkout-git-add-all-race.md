@@ -2,16 +2,16 @@
 slug: shared-checkout-git-add-all-race
 title: Concurrent git add -A on a shared deploy checkout swept my uncommitted work into another session's commit
 hit_count: 1
-token_cost: medium — work attribution lost into another commit; near-miss on losing the last file
+token_cost: medium, work attribution lost into another commit; near-miss on losing the last file
 ---
 
 # Symptom
 
-Worked across many files in `~/dev/example-app` (a shared deploy checkout), batching commits for the end. By the time I went to commit, `git status` showed most of my files as already clean/committed — a parallel workstream's `git add -A && git commit` had absorbed my uncommitted edits into ITS commits. Only the single most-recently-edited file was still mine to commit.
+Worked across many files in `~/dev/example-app` (a shared deploy checkout), batching commits for the end. By the time I went to commit, `git status` showed most of my files as already clean/committed. A parallel workstream's `git add -A && git commit` had absorbed my uncommitted edits into ITS commits. Only the single most-recently-edited file was still mine to commit.
 
 # Root cause
 
-The working tree is shared by multiple concurrent agents/sessions and a deploy process. Any `git add -A` by another actor stages and commits whatever is currently dirty — including your in-progress, unattributed work.
+The working tree is shared by multiple concurrent agents/sessions and a deploy process. Any `git add -A` by another actor stages and commits whatever is currently dirty, including your in-progress, unattributed work.
 
 # Remedy
 

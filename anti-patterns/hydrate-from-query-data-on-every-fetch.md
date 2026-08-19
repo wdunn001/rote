@@ -11,7 +11,7 @@ An edit form / drawer / modal pulls its initial values from a React Query (or SW
 
 # Root cause
 
-The hydrate effect's dep array includes the query data reference.  React Query returns a fresh object reference on every fetch (JSON-deserialized responses are by definition new objects), so any background refetch — even a same-content one — triggers the effect.
+The hydrate effect's dep array includes the query data reference.  React Query returns a fresh object reference on every fetch (JSON-deserialized responses are by definition new objects), so any background refetch, even a same-content one, triggers the effect.
 
 Common amplifier: a sibling mutation that runs on a debounce, invalidates the same query on success, refetches, hydrates, **changes some derived dep** (e.g. a stringified waypoints signature), restarts the debounce.  Infinite loop with no user input.
 
@@ -42,18 +42,18 @@ The form's local state becomes the source of truth during the edit session; expl
 
 # Trade-off you accept
 
-A concurrent edit from another operator no longer reflects live in this drawer.  Usually fine — most edit drawers aren't multi-user-realtime.  Close + reopen the drawer to pull a fresh snapshot.  If you genuinely need collaborative edit, use yjs / Liveblocks; don't simulate it with refetch hydration.
+A concurrent edit from another operator no longer reflects live in this drawer.  Usually fine. Most edit drawers aren't multi-user-realtime.  Close + reopen the drawer to pull a fresh snapshot.  If you genuinely need collaborative edit, use yjs / Liveblocks; don't simulate it with refetch hydration.
 
 # Diagnosis hints
 
 - Check if a mutation onSuccess invalidates the same query that hydrates the form.
 - Check if the hydrate effect's deps include the query data reference (vs an id).
-- Strip the mutation's `invalidateQueries` and see if the loop stops — if yes, the loop runs through the mutation; if no, something else is shifting deps.
+- Strip the mutation's `invalidateQueries` and see if the loop stops. If yes, the loop runs through the mutation; if no, something else is shifting deps.
 
 # Related
 
-- React Query docs: "Important Defaults" — `staleTime: 0` + auto-refetch-on-window-focus is a common amplifier.
-- [[react-derived-state-anti-pattern]] — broader version.
+- React Query docs: "Important Defaults", `staleTime: 0` + auto-refetch-on-window-focus is a common amplifier.
+- [[react-derived-state-anti-pattern]], broader version.
 
 # Real-world hit
 

@@ -13,9 +13,9 @@ encoder/dispatcher needs exhaustive case handling.  Used heavily in
 packages/mavlink-control.
 
 # When NOT to use
-All verbs share the same payload shape — use a regular interface + verb enum.
+All verbs share the same payload shape. Use a regular interface + verb enum.
 
-The set is huge (50+ verbs) — consider a class-per-verb design instead.
+The set is huge (50+ verbs). Consider a class-per-verb design instead.
 
 # Placeholders
 - UNION_NAME: the discriminated-union type name (example: DroneCommand)

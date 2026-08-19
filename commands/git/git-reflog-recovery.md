@@ -17,7 +17,7 @@ You did something destructive (hard reset, force-checkout, bad rebase, accidenta
 
 # When NOT to use
 The repo has been garbage-collected (rare; default GC keeps reflog 30-90 days). For long-term recovery, you need backups.
-You just want to see commits — use `git log` instead.
+You just want to see commits. Use `git log` instead.
 
 # Gotchas
 - Reflog tracks HEAD movements LOCALLY only. Pushes / pulls record entries; remote operations on OTHER machines don't.
